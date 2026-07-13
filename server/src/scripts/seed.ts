@@ -13,7 +13,7 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Types } from "mongoose";
 import { connectDB } from "../config/db.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 import { User } from "../models/User.js";
 import { Device } from "../models/Devices.js";
 import { Telemetry } from "../models/Telemetry.js";
@@ -220,19 +220,15 @@ async function clearExistingDemoData(emails: string[]): Promise<void> {
 
   if (userIds.length === 0) return;
 
-  // Mongoose's generated document types annotate ref fields as `Schema.Types.ObjectId`
-  // (a SchemaType constructor) rather than an actual `Types.ObjectId` instance, which makes
-  // `$in` filters fail to typecheck against real ObjectId values. Cast filters loosely here;
-  // this is a script, not app runtime code, and the fields are genuinely ObjectId at runtime.
   await Promise.all([
-    Telemetry.deleteMany({ user: { $in: userIds } } as Record<string, unknown>),
-    Alert.deleteMany({ user: { $in: userIds } } as Record<string, unknown>),
-    Prediction.deleteMany({ user: { $in: userIds } } as Record<string, unknown>),
-    Device.deleteMany({ owner: { $in: userIds } } as Record<string, unknown>),
-    User.deleteMany({ _id: { $in: userIds } } as Record<string, unknown>),
+    Telemetry.deleteMany({ user: { $in: userIds } }),
+    Alert.deleteMany({ user: { $in: userIds } }),
+    Prediction.deleteMany({ user: { $in: userIds } }),
+    Device.deleteMany({ owner: { $in: userIds } }),
+    User.deleteMany({ _id: { $in: userIds } }),
   ]);
 
-  logger.info({ count: userIds.length }, "Cleared existing demo users and their data");
+  logger.info(`Cleared existing demo users and their data (count: ${userIds.length})`);
 }
 
 async function seedUserWithDevices(blueprint: DemoUserBlueprint): Promise<{
@@ -264,7 +260,7 @@ async function seedUserWithDevices(blueprint: DemoUserBlueprint): Promise<{
     createdDevices.push({ id: device._id as Types.ObjectId, blueprint: deviceBp });
   }
 
-  user.devices = createdDevices.map((d) => d.id) as unknown as typeof user.devices;
+  user.devices = createdDevices.map((d) => d.id);
   await user.save();
 
   return { userId: user._id as Types.ObjectId, devices: createdDevices };
@@ -344,7 +340,11 @@ async function seedTelemetryForDevice(
 
   await Device.updateOne({ _id: deviceId }, { $set: { consumptionLogs } });
 
-  return { totalKWh, anomalyInjected, lastReading };
+  return {
+    totalKWh,
+    anomalyInjected,
+    ...(lastReading !== undefined ? { lastReading } : {}),
+  };
 }
 
 async function seedAlertsAndPredictions(
@@ -352,7 +352,14 @@ async function seedAlertsAndPredictions(
   devicesWithAnomalies: { id: Types.ObjectId; name: string; lastReading: Date }[],
   allDeviceIds: Types.ObjectId[]
 ): Promise<void> {
-  const alerts = devicesWithAnomalies.map((d) => ({
+  const alerts: {
+    user: Types.ObjectId;
+    device: Types.ObjectId;
+    type: "anomaly" | "threshold" | "info";
+    message: string;
+    timestamp: Date;
+    read: boolean;
+  }[] = devicesWithAnomalies.map((d) => ({
     user: userId,
     device: d.id,
     type: "anomaly" as const,
@@ -420,8 +427,7 @@ async function run(): Promise<void> {
   for (const blueprint of demoUsers) {
     const { userId, devices } = await seedUserWithDevices(blueprint);
     logger.info(
-      { email: blueprint.email, deviceCount: devices.length },
-      "Created demo user and devices"
+      `Created demo user and devices (email: ${blueprint.email}, deviceCount: ${devices.length})`
     );
 
     const devicesWithAnomalies: { id: Types.ObjectId; name: string; lastReading: Date }[] = [];
@@ -436,8 +442,7 @@ async function run(): Promise<void> {
         devicesWithAnomalies.push({ id, name: deviceBp.name, lastReading });
       }
       logger.info(
-        { device: deviceBp.name, totalKWh: Math.round(totalKWh * 100) / 100 },
-        "Seeded telemetry for device"
+        `Seeded telemetry for device (device: ${deviceBp.name}, totalKWh: ${Math.round(totalKWh * 100) / 100})`
       );
     }
 
@@ -446,15 +451,11 @@ async function run(): Promise<void> {
       devicesWithAnomalies,
       devices.map((d) => d.id)
     );
-    logger.info({ email: blueprint.email }, "Seeded alerts and predictions");
+    logger.info(`Seeded alerts and predictions (email: ${blueprint.email})`);
   }
 
-  logger.info(
-    {
-      users: demoUsers.map((u) => ({ email: u.email, password: u.password })),
-    },
-    "Seed complete. Demo login credentials:"
-  );
+  const credentials = demoUsers.map((u) => `${u.email} / ${u.password}`).join(", ");
+  logger.info(`Seed complete. Demo login credentials: ${credentials}`);
 }
 
 run()
@@ -464,6 +465,6 @@ run()
   })
   .then(() => process.exit(0))
   .catch((err: unknown) => {
-    logger.error({ err }, "Seeding failed");
+    logger.error(`Seeding failed: ${err instanceof Error ? err.stack ?? err.message : String(err)}`);
     return mongoose.connection.close().finally(() => process.exit(1));
   });

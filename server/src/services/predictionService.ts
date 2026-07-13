@@ -3,7 +3,7 @@ import axios from "axios";
 import { Types } from "mongoose";
 import { Prediction } from "../models/Prediction.js";
 import { pushAlert } from "./alertServices.js";
-import type { IPrediction } from "../types/Prediction.d.js";
+import type { IPrediction } from "../types/Prediction.js";
 
 export interface PredictionInput {
   user: string | Types.ObjectId;

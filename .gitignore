@@ -1,27 +1,31 @@
-cat << 'EOF' > .gitignore
-# Ignore environments and secrets anywhere in the project
+# Environments and Secrets (Targeted)
 .env
 *.env
 env.txt
 **/env.txt
+**/app/.env
+**/server/.env
 
-# Ignore Python artifacts and virtual environments
-__pycache__/
-*.pyc
-venv/
-.venv/
-**/venv/
-**/__pycache__/
-
-# Ignore massive data files, models, and zip backups
+# Heavy Data, Binary Models, and Backups
 *.h5
 *.pkl
 *.zip
-**/data/*.h5
-**/models/*.pkl
+**/*.h5
+**/*.pkl
 **/*.zip
 
-# Ignore Node dependencies (Frontend and Backend)
+# Node Dependencies
 node_modules/
 **/node_modules/
-EOF
+
+# Compiled TypeScript / JavaScript Outputs
+dist/
+**/dist/
+scripts/*.js
+scripts/*.js.map
+scripts/*.d.ts
+scripts/*.d.ts.map
+server/scripts/*.js
+server/scripts/*.js.map
+server/scripts/*.d.ts
+server/scripts/*.d.ts.map

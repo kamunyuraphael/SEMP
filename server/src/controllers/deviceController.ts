@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Device } from "../models/Devices.js";
 import { User } from "../models/User.js";
-import type { IDevice } from "../types/Device.d.js";
+import type { IDevice } from "../types/Device.js";
 
 interface AuthRequest extends Request {
   user?: { id: string };

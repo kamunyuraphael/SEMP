@@ -2,7 +2,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Alert } from "../models/Alerts.js";
-import type { IAlert } from "../types/Alert.d.js";
+import type { IAlert } from "../types/Alert.js";
 
 interface AuthRequest extends Request {
   user?: { id: string };

@@ -2,7 +2,7 @@
 import { getIO } from "../utils/socketEvents.js";
 import { Alert } from "../models/Alerts.js";
 import logger from "../utils/logger.js";
-import type { AlertEventPayload } from "../types/SocketEvents.d.js";
+import type { AlertEventPayload } from "../types/SocketEvents.js";
 
 interface AlertPayload {
   userId: string;

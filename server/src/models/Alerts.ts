@@ -1,9 +1,9 @@
 // Alert.ts - This file defines the Mongoose schema and model for alerts in the HEMS application. It includes fields for the user associated with the alert, the type of alert, the message, timestamp, and whether the alert has been read. The model is used to create, read, update, and delete alert documents in the MongoDB database.
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IAlert extends Document {
-  user: Schema.Types.ObjectId;   // Reference to User
-  device?: Schema.Types.ObjectId; // Optional: device linked to alert
+  user: Types.ObjectId;   // Reference to User
+  device?: Types.ObjectId; // Optional: device linked to alert
   type: "anomaly" | "threshold" | "info";
   message: string;
   timestamp: Date;

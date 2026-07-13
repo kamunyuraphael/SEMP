@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Telemetry } from "../models/Telemetry.js";
 import { Device } from "../models/Devices.js";
-import type { ITelemetryData } from "../types/Telemetry.d.js";
+import type { ITelemetryData } from "../types/Telemetry.js";
 
 interface AuthenticateRequest extends Request {
   user?: { id: string };

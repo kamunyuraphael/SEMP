@@ -1,0 +1,70 @@
+npm run build
+
+> server@1.0.0 build
+> tsc
+
+src/controllers/predictionController.ts:93:9 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(filter: _QueryFilter<{ user: ObjectId; _id: ObjectId; createdAt: Date; updatedAt: Date; $assertPopulated: <Paths = {}>(path: string | string[], values?: Partial<Paths> | undefined) => PopulateDocumentResult<...>; ... 282 more ...; "device.validateAll": (validators: (RegExp | ... 1 more ... | ValidatorFunction<...>)[]) => ObjectId; }>, update: UpdateWithAggregationPipeline | UpdateQuery<...>, options?: (UpdateOptions & MongooseUpdateQueryOptions<...>) | ... 1 more ... | undefined): Query<...>', gave the following error.
+    Type 'ObjectId' is not assignable to type 'StrictCondition<ApplyBasicQueryCasting<ObjectId>>'.
+      Type 'ObjectId' is not assignable to type 'RemoveIndexSignature<FilterOperators<ObjectId | ObjectId[] | null>>'.
+        Types of property 'id' are incompatible.
+          Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'never'.
+  Overload 2 of 2, '(filter: Query<any, any, {}, unknown, "find", Record<string, never>>, update: UpdateWithAggregationPipeline | UpdateQuery<IPrediction>, options?: (UpdateOptions & MongooseUpdateQueryOptions<...>) | ... 1 more ... | undefined): Query<...>', gave the following error.
+    Object literal may only specify known properties, and 'user' does not exist in type 'Query<any, any, {}, unknown, "find", Record<string, never>>'.
+
+93       { user: new Types.ObjectId(userId), type: "anomaly", resolved: false },
+           ~~~~
+
+
+src/scripts/seed.ts:16:10 - error TS2614: Module '"../utils/logger.js"' has no exported member 'logger'. Did you mean to use 'import logger from "../utils/logger.js"' instead?
+
+16 import { logger } from "../utils/logger.js";
+            ~~~~~~
+
+src/scripts/seed.ts:261:7 - error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type 'ObjectId' is not assignable to type '{ readonly schemaName?: "ObjectId"; auto?: (turnOn: boolean) => ObjectId; $conditionalHandlers?: { [x: string]: ((val: any, context: any) => any) | undefined; }; OptionsConstructor?: { ...; }; ... 23 more ...; validateAll?: (validators: (RegExp | ... 1 more ... | ValidatorFunction<...>)[]) => ObjectId; } | { ...; }'.
+      Type 'ObjectId' is not assignable to type '{ [x: string]: unknown; readonly schemaName?: RegExp | "ObjectId"; auto?: (turnOn: boolean) => ObjectId; $conditionalHandlers?: { [x: string]: ((val: any, context: any) => any) | undefined; } | { ...; }; ... 24 more ...; validateAll?: (validators: (RegExp | ... 1 more ... | ValidatorFunction<...>)[]) => ObjectId; }'.
+        Index signature for type 'string' is missing in type 'ObjectId'.
+
+261       owner: user._id,
+          ~~~~~
+
+  src/models/Devices.ts:10:3
+    10   owner: Schema.Types.ObjectId; // References User
+         ~~~~~
+    The expected type comes from property 'owner' which is declared here on type '{ name?: string | RegExp; category?: RegExp | "kitchen" | "laundry" | "lighting" | "entertainment" | "HVAC" | "computing"; status?: RegExp | "active" | "inactive"; ... 64 more ...; validateSync?: { ...; }; }'
+  node_modules/mongoose/types/models.d.ts:322:5
+    322     create(...docs: Array<DeepPartial<ApplyBasicCreateCasting<Require_id<TRawDocType>>>>): Promise<THydratedDocumentType[]>;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The last overload is declared here.
+
+src/scripts/seed.ts:264:38 - error TS2339: Property '_id' does not exist on type 'never'.
+
+264     createdDevices.push({ id: device._id as Types.ObjectId, blueprint: deviceBp });
+                                         ~~~
+
+src/scripts/seed.ts:347:3 - error TS2375: Type '{ totalKWh: number; anomalyInjected: boolean; lastReading: Date | undefined; }' is not assignable to type '{ totalKWh: number; anomalyInjected: boolean; lastReading?: Date; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'lastReading' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+
+347   return { totalKWh, anomalyInjected, lastReading };
+      ~~~~~~
+
+src/scripts/seed.ts:367:5 - error TS2322: Type '"info"' is not assignable to type '"anomaly"'.
+
+367     type: "info" as const,
+        ~~~~
+
+  src/scripts/seed.ts:358:5
+    358     type: "anomaly" as const,
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+    The expected type comes from property 'type' which is declared here on type '{ user: ObjectId; device: ObjectId; type: "anomaly"; message: string; timestamp: Date; read: boolean; }'
+
+
+Found 6 errors in 2 files.
+
+Errors  Files
+     1  src/controllers/predictionController.ts:93
+     5  src/scripts/seed.ts:16
