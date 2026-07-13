@@ -1,0 +1,27 @@
+cat << 'EOF' > .gitignore
+# Ignore environments and secrets anywhere in the project
+.env
+*.env
+env.txt
+**/env.txt
+
+# Ignore Python artifacts and virtual environments
+__pycache__/
+*.pyc
+venv/
+.venv/
+**/venv/
+**/__pycache__/
+
+# Ignore massive data files, models, and zip backups
+*.h5
+*.pkl
+*.zip
+**/data/*.h5
+**/models/*.pkl
+**/*.zip
+
+# Ignore Node dependencies (Frontend and Backend)
+node_modules/
+**/node_modules/
+EOF

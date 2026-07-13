@@ -1,0 +1,92 @@
+user@Raphael???? MINGW64 /e/projects/SEMP/analytics-python/src
+$ export PYTHONPATH=$PWD                            
+python ../app.py
+INFO:__main__:Starting HEMS Python Analytics Service
+INFO:__main__:  Building:          UK-DALE Building 1
+INFO:__main__:  Sample period:     6s
+INFO:__main__:  Schedule interval: 15 minutes
+INFO:__main__:  Node API URL:      http://localhost:5000/api/ml/predictions
+INFO:scheduler:Initialising HEMS analytics pipeline scheduler
+INFO:__main__:Pipeline scheduler started in background thread
+INFO:pipeline.disaggregator:Appliance list loaded from models\co_model.pkl: ['Active subwoofer', 'Audio amplifier', 'Audio system', 'Baby monitor', 'Boiler', 'Breadmaker', 'Broadband router', 'Charger', 'Clothes iron', 'Coffee maker', 'Computer', 'Computer monitor', 'Desktop computer', 'Dish washer', 'Ethernet switch', 'Fan', 'Fridge freezer', 'HTPC', 'Hair dryer', 'Hair straighteners', 'Kettle', 'Laptop computer', 'Light', 'Microwave', 'Mobile phone charger', 'Oven', 'Printer', 'Radio', 'Solar thermal pumping station', 'Soldering iron', 'Tablet computer charger', 'Television', 'Toaster', 'Vacuum cleaner', 'Washer dryer', 'Wireless phone charger']
+ * Serving Flask app 'app'
+ * Debug mode: off
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.17.198.247:8000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:pipeline.forecaster:Loaded 1 forecaster models from models\forecaster_models.pkl
+INFO:pipeline.anomaly:Anomaly models loaded: mains + 1 appliance models
+INFO:scheduler:All models loaded from disk — skipping training
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:Scheduler started — pipeline runs every 15 minute(s). Press Ctrl+C to stop.
+INFO:scheduler:=== Pipeline run started at 2026-07-08T21:10:26.416307 ===
+INFO:bridge.poster:Node.js health check passed: http://localhost:5000/health
+INFO:scheduler:Ingestion window: 2013-05-01 → 2013-05-03
+INFO:ingestion.loader:Loading UK-DALE dataset from data/ukdale.h5
+INFO:ingestion.loader:Loaded Building 1 with 52 submetered appliances
+INFO:ingestion.loader:Time window set: start=2013-05-01, end=2013-05-03
+INFO:pipeline.disaggregator:Reading ground-truth appliance power for 2013-05-01 → 2013-05-03
+WARNING:pipeline.disaggregator:Skipping 'Active subwoofer' for this window: {'type': 'Active subwoofer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Audio amplifier' for this window: {'type': 'Audio amplifier', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Audio system' for this window: {'type': 'Audio system', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Baby monitor' for this window: {'type': 'Baby monitor', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Boiler' for this window: {'type': 'Boiler', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Breadmaker' for this window: {'type': 'Breadmaker', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Broadband router' for this window: {'type': 'Broadband router', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Charger' for this window: {'type': 'Charger', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Clothes iron' for this window: {'type': 'Clothes iron', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Coffee maker' for this window: {'type': 'Coffee maker', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Computer' for this window: {'type': 'Computer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Computer monitor' for this window: {'type': 'Computer monitor', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Desktop computer' for this window: {'type': 'Desktop computer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Dish washer' for this window: {'type': 'Dish washer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Ethernet switch' for this window: {'type': 'Ethernet switch', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Fan' for this window: {'type': 'Fan', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Fridge freezer' for this window: {'type': 'Fridge freezer', 'instance': 1}
+INFO:ingestion.loader:Loading 'HTPC' power at 6s resolution
+WARNING:pipeline.disaggregator:Skipping 'Hair dryer' for this window: {'type': 'Hair dryer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Hair straighteners' for this window: {'type': 'Hair straighteners', 'instance': 1}WARNING:pipeline.disaggregator:Skipping 'Kettle' for this window: {'type': 'Kettle', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Laptop computer' for this window: {'type': 'Laptop computer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Light' for this window: {'type': 'Light', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Microwave' for this window: {'type': 'Microwave', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Mobile phone charger' for this window: {'type': 'Mobile phone charger', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Oven' for this window: {'type': 'Oven', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Printer' for this window: {'type': 'Printer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Radio' for this window: {'type': 'Radio', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Solar thermal pumping station' for this window: {'type': 'Solar thermal pumping station', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Soldering iron' for this window: {'type': 'Soldering iron', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Tablet computer charger' for this window: {'type': 'Tablet computer charger', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Television' for this window: {'type': 'Television', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Toaster' for this window: {'type': 'Toaster', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Vacuum cleaner' for this window: {'type': 'Vacuum cleaner', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Washer dryer' for this window: {'type': 'Washer dryer', 'instance': 1}
+WARNING:pipeline.disaggregator:Skipping 'Wireless phone charger' for this window: {'type': 'Wireless phone charger', 'instance': 1}
+INFO:pipeline.disaggregator:Extraction complete: 1 appliances, 28800 timesteps
+INFO:ingestion.loader:Loading mains power at 6s resolution
+INFO:ingestion.loader:Dataset store closed
+INFO:scheduler:Disaggregation: 2 payloads
+INFO:pipeline.forecaster:Forecasting consumption for 2013-05-03
+INFO:pipeline.forecaster:Forecast complete: 1 appliances × 24 hours
+INFO:scheduler:Forecast: 2 payloads
+INFO:pipeline.anomaly:Mains anomaly detection: 0 anomalous hours found
+INFO:pipeline.anomaly:Generated 0 anomaly prediction payloads
+INFO:scheduler:Anomaly detection: 0 payloads
+INFO:bridge.poster:=== Starting pipeline results POST ===
+INFO:bridge.poster:--- Posting disaggregation results ---
+INFO:bridge.poster:Posting 2 prediction payload(s) to http://localhost:5000/api/ml/predictions
+ERROR:bridge.poster:POST rejected [401]: ML_API_KEY does not match the Node server. Check both .env files have the same ML_API_KEY value.
+ERROR:bridge.poster:POST rejected [401]: ML_API_KEY does not match the Node server. Check both .env files have the same ML_API_KEY value.
+INFO:bridge.poster:Batch POST complete: 0/2 succeeded, 2 failed
+INFO:bridge.poster:--- Posting forecast results ---
+INFO:bridge.poster:Posting 2 prediction payload(s) to http://localhost:5000/api/ml/predictions
+ERROR:bridge.poster:POST rejected [401]: ML_API_KEY does not match the Node server. Check both .env files have the same ML_API_KEY value.
+ERROR:bridge.poster:POST rejected [401]: ML_API_KEY does not match the Node server. Check both .env files have the same ML_API_KEY value.
+INFO:bridge.poster:Batch POST complete: 0/2 succeeded, 2 failed
+INFO:bridge.poster:--- Posting anomaly detection results ---
+INFO:bridge.poster:No payloads to post
+INFO:bridge.poster:=== Pipeline POST complete: 0/4 succeeded, 4 failed ===
+INFO:scheduler:=== Pipeline run complete in 1.3s | Summary: {'disaggregation': {'total': 2, 'succeeded': 0, 'failed': 2}, 'forecast': {'total': 2, 'succeeded': 0, 'failed': 2}, 'anomaly': {'total': 0, 'succeeded': 0, 'failed': 0}} ===
+INFO:apscheduler.scheduler:Added job "HEMS Analytics Pipeline" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started

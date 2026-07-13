@@ -1,0 +1,17 @@
+TypeError: Cannot set property query of #<IncomingMessage> which has only a getter
+    at <anonymous> (E:\projects\SEMP\server\src\middleware\validateRequest.ts:35:7)
+    at Layer.handleRequest (E:\projects\SEMP\server\node_modules\router\lib\layer.js:152:17)
+    at next (E:\projects\SEMP\server\node_modules\router\lib\route.js:157:13)
+    at authMiddleware (E:\projects\SEMP\server\src\middleware\authMiddleware.ts:31:5)
+    at Layer.handleRequest (E:\projects\SEMP\server\node_modules\router\lib\layer.js:152:17)
+    at next (E:\projects\SEMP\server\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (E:\projects\SEMP\server\node_modules\router\lib\route.js:117:3)
+    at handle (E:\projects\SEMP\server\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (E:\projects\SEMP\server\node_modules\router\lib\layer.js:152:17)
+    at E:\projects\SEMP\server\node_modules\router\index.js:295:15
+    at processParams (E:\projects\SEMP\server\node_modules\router\index.js:582:12)
+    at next (E:\projects\SEMP\server\node_modules\router\index.js:291:5)
+    at Function.handle (E:\projects\SEMP\server\node_modules\router\index.js:186:3)
+    at router (E:\projects\SEMP\server\node_modules\router\index.js:60:12)
+    at Layer.handleRequest (E:\projects\SEMP\server\node_modules\router\lib\layer.js:152:17)
+    at trimPrefix (E:\projects\SEMP\server\node_modules\router\index.js:342:13)

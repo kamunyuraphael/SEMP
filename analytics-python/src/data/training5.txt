@@ -1,0 +1,94 @@
+python app.py
+INFO:__main__:Starting HEMS Python Analytics Service
+INFO:__main__:  Building:          UK-DALE Building 1
+INFO:__main__:  Sample period:     6s
+INFO:__main__:  Schedule interval: 15 minutes
+INFO:__main__:  Node API URL:      http://localhost:5000/api/ml/predictions
+INFO:scheduler:Initialising HEMS analytics pipeline scheduler
+INFO:__main__:Pipeline scheduler started in background thread
+INFO:pipeline.disaggregator:Appliance list loaded from models\co_model.pkl: ['Kettle', 'Fridge freezer', 'Dish washer', 'Microwave', 'Television', 'Toaster', 'Oven', 'Computer', 'Desktop computer', 'Laptop computer', 'Boiler']
+ * Serving Flask app 'app'
+ * Debug mode: off
+INFO:pipeline.forecaster:Loaded 11 forecaster models from models\forecaster_models.pkl
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.17.198.247:8000
+INFO:werkzeug:Press CTRL+C to quit
+INFO:pipeline.anomaly:Anomaly models loaded: mains + 11 appliance models
+INFO:scheduler:All models loaded from disk — skipping training
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:scheduler:Scheduler started — pipeline runs every 15 minute(s). Press Ctrl+C to stop.
+INFO:scheduler:=== Pipeline run started at 2026-07-09T15:04:01.851035 ===
+INFO:bridge.poster:Node.js health check passed: http://localhost:5000/health
+INFO:scheduler:Ingestion window: 2013-05-01 → 2013-05-03
+INFO:ingestion.loader:Loading UK-DALE dataset from src/data/ukdale.h5
+INFO:ingestion.loader:Loaded Building 1 with 52 submetered appliances
+INFO:ingestion.loader:Time window set: start=2013-05-01, end=2013-05-03
+INFO:pipeline.disaggregator:Reading ground-truth appliance power for 2013-05-01 → 2013-05-03
+E:\projects\SEMP\analytics-python\venv\Lib\site-packages\nilmtk\elecmeter.py:188: RuntimeWarning: Multiple appliances are associated with meter {} but none are marked as the dominant appliance. Hence returning the first appliance in the list.
+  warn('Multiple appliances are associated with meter {}'
+INFO:ingestion.loader:Loading 'Kettle' power at 6s resolution
+INFO:ingestion.loader:Loading 'Fridge freezer' power at 6s resolution
+INFO:ingestion.loader:Loading 'Dish washer' power at 6s resolution
+INFO:ingestion.loader:Loading 'Microwave' power at 6s resolution
+INFO:ingestion.loader:Loading 'Television' power at 6s resolution
+INFO:ingestion.loader:Loading 'Toaster' power at 6s resolution
+INFO:ingestion.loader:Loading 'Oven' power at 6s resolution
+INFO:ingestion.loader:Loading 'Computer' power at 6s resolution
+INFO:ingestion.loader:Loading 'Desktop computer' power at 6s resolution
+INFO:ingestion.loader:Loading 'Laptop computer' power at 6s resolution
+INFO:ingestion.loader:Loading 'Boiler' power at 6s resolution
+INFO:pipeline.disaggregator:Extraction complete: 11 appliances, 28800 timesteps
+INFO:ingestion.loader:Loading mains power at 6s resolution
+INFO:ingestion.loader:Dataset store closed
+INFO:scheduler:Disaggregation: 12 payloads
+INFO:pipeline.forecaster:Forecasting consumption for 2026-07-09
+INFO:pipeline.forecaster:Forecast complete: 11 appliances × 24 hours
+INFO:scheduler:Forecast: 12 payloads
+INFO:pipeline.anomaly:Mains anomaly detection: 0 anomalous hours found
+INFO:pipeline.anomaly:  Kettle: 1 anomalous hours
+INFO:pipeline.anomaly:  Dish_washer: 3 anomalous hours
+INFO:pipeline.anomaly:  Microwave: 1 anomalous hours
+INFO:pipeline.anomaly:  Toaster: 1 anomalous hours
+INFO:pipeline.anomaly:  Oven: 1 anomalous hours
+INFO:pipeline.anomaly:  Desktop_computer: 4 anomalous hours
+INFO:pipeline.anomaly:Generated 11 anomaly prediction payloads
+INFO:scheduler:Anomaly detection: 11 payloads
+INFO:bridge.poster:=== Starting pipeline results POST ===
+INFO:bridge.poster:--- Posting disaggregation results ---
+INFO:bridge.poster:Posting 12 prediction payload(s) to http://localhost:5000/api/ml/predictions
+INFO:bridge.poster:Batch POST complete: 12/12 succeeded, 0 failed
+INFO:bridge.poster:--- Posting forecast results ---
+INFO:bridge.poster:Posting 12 prediction payload(s) to http://localhost:5000/api/ml/predictions
+INFO:bridge.poster:Batch POST complete: 12/12 succeeded, 0 failed
+INFO:bridge.poster:--- Posting anomaly detection results ---
+INFO:bridge.poster:Posting 11 prediction payload(s) to http://localhost:5000/api/ml/predictions
+INFO:bridge.poster:Batch POST complete: 11/11 succeeded, 0 failed
+INFO:bridge.poster:=== Pipeline POST complete: 35/35 succeeded, 0 failed ===
+INFO:scheduler:=== Pipeline run complete in 13.8s | Summary: {'disaggregation': {'total': 12, 'succeeded': 12, 'failed': 0}, 'forecast': {'total': 12, 'succeeded': 12, 'failed': 0}, 'anomaly': {'total': 11, 'succeeded': 11, 'failed': 0}} ===
+INFO:apscheduler.scheduler:Added job "HEMS Analytics Pipeline" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+
+npm run dev
+
+> server@1.0.0 dev
+> tsx watch src/server.ts
+
+◇ injected env (4) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+2026-07-09 15:03:44 [info]: 🔌 Socket.io instance safely cached inside utility manager.
+2026-07-09 15:03:45 [info]: MongoDB Connected: ac-1slubcw-shard-00-02.xxtxykc.mongodb.net
+2026-07-09 15:03:45 [info]: 🚀 SEMP Engine orchestrating safely on port 5000
+2026-07-09 15:04:12 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:12 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:12 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:13 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:13 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:13 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:14 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:14 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:14 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:15 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:04:15 [info]: 🚨 Alert pushed to user 6a4f8d9c4d9d86cc9fa82ed0
+2026-07-09 15:05:12 [info]: 🔌 Connection handshake opened: 2_sZafnwmbkmHlSOAAAB
+2026-07-09 15:05:12 [info]: 👥 Client 2_sZafnwmbkmHlSOAAAB joined alerts pipeline channel: [User: 6a4f8d9c4d9d86cc9fa82ed0]
