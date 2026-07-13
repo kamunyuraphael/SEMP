@@ -355,8 +355,8 @@ def start_scheduler() -> None:
     scheduler.add_job(
         func=run_pipeline,
         trigger=IntervalTrigger(minutes=Config.SCHEDULE_INTERVAL_MINUTES),
-        id="hems_pipeline",
-        name="HEMS Analytics Pipeline",
+        id="semp_pipeline",
+        name="SEMP Analytics Pipeline",
         replace_existing=True,
         max_instances=1,        # prevent overlapping runs
         misfire_grace_time=60,  # allow up to 60s late start before skipping

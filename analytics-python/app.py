@@ -19,6 +19,13 @@ Endpoints:
   GET  /appliances          — list Building 1 appliances from UK-DALE
 """
 
+import os
+import sys
+
+src_path = os.path.join(os.path.dirname(__file__), "src")
+if src_path not in sys.path:
+    sys.path.append(src_path)
+    
 import logging
 import traceback
 from datetime import datetime
@@ -30,6 +37,7 @@ from config import Config
 from ingestion.loader import UKDALELoader
 import scheduler as pipeline
 from scheduler import start_scheduler, run_pipeline, _train_models, TRAIN_START, TRAIN_WINDOW_DAYS
+
 
 # ---------------------------------------------------------------------------
 # App Setup

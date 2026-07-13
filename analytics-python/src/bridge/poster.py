@@ -19,6 +19,7 @@ Responsibilities:
 import logging
 import time
 from typing import Optional
+from urllib.parse import urlsplit
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -276,7 +277,20 @@ def check_node_health() -> bool:
     Returns:
         True if the Node server is reachable and healthy.
     """
-    health_url = Config.NODE_API_URL.replace("/api/ml/predictions", "/health")
+    # /health is mounted at the server root (app.get("/health", ...)), separate
+    # from the /api router that /api/ml/predictions lives under — and that
+    # route only accepts POST. Derive the origin from NODE_API_URL so this
+    # keeps working no matter what path NODE_API_URL points to.
+    parsed = urlsplit(Config.NODE_API_URL)
+    if not parsed.scheme or not parsed.netloc:
+        logger.error(
+            f"NODE_API_URL is missing a scheme/host and can't be used for a "
+            f"health check: {Config.NODE_API_URL!r}. It must look like "
+            f"'https://your-host.example.com/api/ml/predictions' "
+            f"(check .env for a missing 'https://' or stray quotes)."
+        )
+        return False
+    health_url = f"{parsed.scheme}://{parsed.netloc}/health"
 
     try:
         response = requests.get(health_url, timeout=(3, 5))
