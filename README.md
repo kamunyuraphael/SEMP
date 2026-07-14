@@ -262,15 +262,8 @@ faking movement client-side.
 
 ## Known limitations / things worth knowing
 
-- `client/package.json`, `server/package.json`, and Vite/TS config
-  aren't in this repo yet (see Prerequisites above).
 - `DEFAULT_USER_ID` in `analytics-python/.env` must be a real MongoDB
   ObjectId — the placeholder value will cause every ML POST to fail
   schema validation with a 400.
 - The Python `.env` file must be named exactly `.env`, not `env.txt`,
   or `python-dotenv` silently won't load it.
-- If you see `TypeError: Cannot set property query of #<IncomingMessage>
-which has only a getter`, that's an Express 5 / `router` package
-  compatibility issue — already fixed in `middleware/validateRequest.ts`
-  by mutating `req.query`/`req.params` in place instead of reassigning
-  them.
