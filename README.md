@@ -83,9 +83,7 @@ SEMP/
 - MongoDB (local or Atlas)
 - The UK-DALE dataset (`ukdale.h5`) — download from https://jack-kelly.com/data/ and place it under `analytics-python/data/`
 
-> **Note:** `client/package.json` and `server/package.json` (plus Vite/TS
-> config) aren't included yet — this repo currently ships source files
-> only. Scaffold each with `npm create vite@latest` (React + TypeScript
+> **Note:** Scaffold each front, app and server, with `npm create vite@latest` (React + TypeScript
 > template) / `npm init` respectively, matching the dependencies listed
 > above, before `npm install` will work.
 
