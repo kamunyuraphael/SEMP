@@ -44,7 +44,7 @@ export default function Sidebar({
       {/* Brand */}
       <NavLink to="/dashboard" className="sidebar-brand">
         <div className="sidebar-brand-icon">
-          <i className="bi bi-lightning-charge-fill" />
+          {/*<i className="bi bi-lightning-charge-fill" />*/}
         </div>
         <span className="sidebar-brand-name">
           SEMP

@@ -53,7 +53,7 @@ export default function Login() {
         {/* Brand */}
         <div className="auth-brand">
           <div className="sidebar-brand-icon">
-            <i className="bi bi-lightning-charge-fill" />
+            {/* <i className="bi bi-lightning-charge-fill" />*/}
           </div>
           <span className="sidebar-brand-name">
             SEMP
