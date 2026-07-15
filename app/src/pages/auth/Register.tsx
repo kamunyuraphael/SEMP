@@ -66,9 +66,9 @@ export default function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="sidebar-brand-icon">
+          {/*<div className="sidebar-brand-icon">
             <i className="bi bi-lightning-charge-fill" />
-          </div>
+          </div>*/}
           <span className="sidebar-brand-name">
             SEMP
           </span>

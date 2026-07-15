@@ -1,6 +1,5 @@
 // components/ui/LoadingSpinner.tsx
-// Lightweight reusable spinner using Bootstrap's spinner-border,
-// recoloured via index.css to match the SEMP accent palette.
+// Lightweight reusable spinner using Bootstrap's spinner-border.
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';

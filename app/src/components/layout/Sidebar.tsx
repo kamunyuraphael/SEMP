@@ -43,9 +43,9 @@ export default function Sidebar({
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
       <NavLink to="/dashboard" className="sidebar-brand">
-        <div className="sidebar-brand-icon">
-          {/*<i className="bi bi-lightning-charge-fill" />*/}
-        </div>
+        {/*<div className="sidebar-brand-icon">
+          <i className="bi bi-lightning-charge-fill" />
+        </div>*/}
         <span className="sidebar-brand-name">
           SEMP
         </span>

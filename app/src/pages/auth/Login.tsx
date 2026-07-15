@@ -52,9 +52,9 @@ export default function Login() {
       <div className="auth-card">
         {/* Brand */}
         <div className="auth-brand">
-          <div className="sidebar-brand-icon">
-            {/* <i className="bi bi-lightning-charge-fill" />*/}
-          </div>
+          {/* <div className="sidebar-brand-icon">
+            <i className="bi bi-lightning-charge-fill" />
+          </div>*/}
           <span className="sidebar-brand-name">
             SEMP
           </span>
