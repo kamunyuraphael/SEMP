@@ -61,7 +61,7 @@ export function CategoryPie({ data, size = 180, valueSuffix = ' kWh', centerLabe
   const hoverOuterR = outerR + 4;
 
   let cursor = 0;
-  const segments = data.map((point, index) => {
+  const segments = data.map((point) => {
     const fraction = point.value / total;
     const startAngle = cursor * 360;
     const endAngle = (cursor + fraction) * 360;
