@@ -3,7 +3,7 @@ import axios from "axios";
 import { Types } from "mongoose";
 import { Prediction } from "../models/Prediction.js";
 import { pushAlert } from "./alertServices.js";
-import type { IPrediction } from "../types/Prediction.js";
+import type { IPrediction } from "../types/Prediction.d.js";
 
 export interface PredictionInput {
   user: string | Types.ObjectId;
@@ -57,7 +57,11 @@ export const getPredictionsByUser = async (userId: string, type?: IPrediction["t
     filter.type = type;
   }
 
-  return Prediction.find(filter as any).sort({ timestamp: -1 }).limit(100).lean();
+  return Prediction.find(filter as any)
+    .sort({ timestamp: -1 })
+    .limit(100)
+    .populate('device', 'name category')
+    .lean();
 };
 
 // Example: Fetch predictions from Python ML API

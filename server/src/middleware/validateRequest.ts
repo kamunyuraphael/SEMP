@@ -32,7 +32,14 @@ export const validateQuery = (schema: ZodTypeAny) => (
     });
   }
 
-  Object.keys(req.query).forEach(key => delete req.query[key]);
+  // Express 5 (and the standalone `router` package) made req.query a
+  // getter-only property computed from the URL, so `req.query = ...`
+  // throws "Cannot set property query of #<IncomingMessage> which has
+  // only a getter". Mutate the existing object in place instead of
+  // reassigning it.
+  for (const key of Object.keys(req.query)) {
+    delete (req.query as Record<string, unknown>)[key];
+  }
   Object.assign(req.query, result.data);
   return next();
 };
@@ -50,6 +57,12 @@ export const validateParams = (schema: ZodTypeAny) => (
     });
   }
 
-  req.params = result.data as any;
+  // Same getter-only issue can affect req.params on some router
+  // versions — mutate in place rather than reassign, for the same
+  // reason as validateQuery above.
+  for (const key of Object.keys(req.params)) {
+    delete (req.params as Record<string, unknown>)[key];
+  }
+  Object.assign(req.params, result.data);
   return next();
 };

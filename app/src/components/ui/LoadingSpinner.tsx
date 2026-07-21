@@ -1,5 +1,5 @@
 // components/ui/LoadingSpinner.tsx
-// Lightweight reusable spinner using Bootstrap's spinner-border.
+// Lightweight reusable spinner using Bootstrap's spinner-border,
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';

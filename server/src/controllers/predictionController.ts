@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { getPredictionsByUser, ingestPrediction } from "../services/predictionService.js";
 import { Prediction } from "../models/Prediction.js";
-import type { IPrediction } from "../types/Prediction.js";
+import type { IPrediction } from "../types/Prediction.d.js";
 
 interface AuthRequest extends Request {
   user?: { id: string };

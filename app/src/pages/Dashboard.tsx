@@ -18,6 +18,7 @@ import { useSocket } from '../context/SocketContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { extractSeverity, timeAgo } from '../utils/anomaly';
 import { CATEGORY_COLORS } from '../utils/categoryColors';
+import { generateInsights } from '../utils/insights';
 import type {
   Device,
   TelemetryRecord,
@@ -207,6 +208,13 @@ export default function Dashboard() {
     fill: CATEGORY_COLORS[b.category] || '#C15A02',
   }));
 
+  const insights = generateInsights({
+    categoryTotals: pieData.map((p) => ({ name: p.name, value: p.value })),
+    kWhTrendPct,
+    currentDrawTrendPct,
+    unresolvedAnomalyCount: unresolvedCount,
+  });
+
   if (isLoading) {
     return <LoadingSpinner fullPage label="Loading dashboard..." />;
   }
@@ -310,6 +318,47 @@ export default function Dashboard() {
               {totalDevices - activeDevices} offline
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="chart-card mb-4">
+        <div className="chart-header">
+          <div>
+            <div className="chart-title">Insights</div>
+            <div className="chart-subtitle">Ways to reduce cost, based on today's data</div>
+          </div>
+        </div>
+        <div className="d-flex flex-column gap-2">
+          {insights.map((insight, i) => (
+            <div
+              key={i}
+              className="d-flex align-items-start gap-2 p-2"
+              style={{
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor:
+                  insight.tone === 'warning'
+                    ? 'rgba(193, 90, 2, 0.08)'
+                    : insight.tone === 'success'
+                    ? 'rgba(232, 162, 33, 0.08)'
+                    : 'var(--bg-surface)',
+              }}
+            >
+              <i
+                className={`bi ${insight.icon} mt-1 flex-shrink-0`}
+                style={{
+                  color:
+                    insight.tone === 'warning'
+                      ? 'var(--warning)'
+                      : insight.tone === 'success'
+                      ? 'var(--accent-amber)'
+                      : 'var(--accent-primary)',
+                }}
+              />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                {insight.text}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
-import app, { isAllowedOrigin } from "./app.js";
+import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import logger from "./utils/logger.js";
 import { initIO } from "./utils/socketEvents.js";
@@ -23,10 +23,7 @@ const server = http.createServer(app);
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: {
-    origin: (origin, callback) => {
-      if (!origin || isAllowedOrigin(origin)) return callback(null, true);
-      callback(new Error("Not allowed by CORS"));
-    },
+    origin: process.env.ALLOWED_ORIGINS || "*",
     methods: ["GET", "POST"],
   },
 });

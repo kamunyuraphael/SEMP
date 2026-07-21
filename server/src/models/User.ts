@@ -1,12 +1,12 @@
 // User.ts - This file defines the Mongoose schema and model for users in the HEMS application. It includes fields for username, email, password, role, associated devices, and timestamps. The model is used to create, read, update, and delete user documents in the MongoDB database.
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
   role: "user" | "admin";
-  devices: Types.ObjectId[]; // References Device documents
+  devices: Schema.Types.ObjectId[]; // References Device documents
   createdAt: Date;
   updatedAt: Date;
 }

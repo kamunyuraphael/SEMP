@@ -1,5 +1,5 @@
 // Devices.ts - This file defines the Mongoose schema and model for devices in the HEMS application. It includes fields for the device name, category, status, owner, and consumption logs. The model is used to create, read, update, and delete device documents in the MongoDB database.
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
 export interface IDevice extends Document {
   name: string;
@@ -7,7 +7,7 @@ export interface IDevice extends Document {
   status: "active" | "inactive";
   location?: string;
   ratedWattage?: number;
-  owner: Types.ObjectId; // References User
+  owner: Schema.Types.ObjectId; // References User
   consumptionLogs: {
     date: Date;
     kWh: number;

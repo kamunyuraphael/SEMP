@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Telemetry } from "../models/Telemetry.js";
 import { Device } from "../models/Devices.js";
-import type { ITelemetryData } from "../types/Telemetry.js";
+import type { ITelemetryData } from "../types/Telemetry.d.js";
 
 interface AuthenticateRequest extends Request {
   user?: { id: string };
@@ -36,6 +36,7 @@ export const getTelemetry = async (
     const telemetry = await Telemetry.find(filter)
       .sort({ timestamp: -1 })
       .limit(100)
+      .populate('device', 'name category')
       .lean();
 
     res.status(200).json({

@@ -24,4 +24,5 @@ const logger = winston.createLogger({
   ],
 });
 
+// Export as the DEFAULT export to resolve your compiler error
 export default logger;

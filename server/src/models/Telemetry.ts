@@ -1,6 +1,6 @@
 // Telemetry.ts - Mongoose model for storing energy consumption data
 import { Schema, model, Document } from "mongoose";
-import type { ITelemetryData } from "../types/Telemetry.js";
+import type { ITelemetryData } from "../types/Telemetry.d.js";
 
 export interface ITelemetry extends ITelemetryData, Document {}
 
