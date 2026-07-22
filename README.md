@@ -1,4 +1,4 @@
-# SEMP — Smart Energy Monitoring and Prediction System
+# SEMP - Smart Energy Monitoring and Prediction System
 
 SEMP is a three-tier home energy monitoring platform: a Python analytics
 service disaggregates and forecasts household power consumption from the
@@ -8,16 +8,16 @@ consumption forecasts, and anomaly detection — with real-time alerts over
 Socket.io.
 
 ```
-┌─────────────────────┐      HTTP (ML webhook)      ┌──────────────────────┐      HTTP + Socket.io      ┌──────────────────────┐
-│   analytics-python   │ ──────────────────────────▶ │        server        │ ◀─────────────────────────▶ │        client         │
+┌───────────────────────┐      HTTP (ML webhook)      ┌───────────────────────┐      HTTP + Socket.io       ┌───────────────────────┐
+│   analytics-python    │──────────────────────────▶ │        server         │ ◀─────────────────────────▶│        client          │
 │  (Flask + APScheduler)│                             │  (Express + MongoDB)  │                             │  (React + TypeScript)  │
-│                      │                             │                       │                             │                        │
+│                       │                             │                       │                             │                        │
 │ • UK-DALE ingestion   │                             │ • Auth (JWT)          │                             │ • Dashboard            │
 │ • Disaggregation      │                             │ • Devices/Telemetry   │                             │ • Devices              │
 │ • Forecasting (GBR)   │                             │ • Predictions/Alerts  │                             │ • Telemetry            │
 │ • Anomaly detection   │                             │ • Export (CSV/XLSX)   │                             │ • Predictions          │
 │   (IsolationForest)   │                             │ • Real-time alerts    │                             │ • Anomalies            │
-└─────────────────────┘                             └──────────────────────┘                             └──────────────────────┘
+└───────────────────────┘                             └───────────────────────┘                             └────────────────────────┘
 ```
 
 ---
