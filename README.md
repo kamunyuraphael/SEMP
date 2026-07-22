@@ -1,4 +1,4 @@
-# SEMP — Smart Energy Monitoring and Prediction System
+# SEMP - Smart Energy Monitoring and Prediction System
 
 SEMP is a three-tier home energy monitoring platform: a Python analytics
 service disaggregates and forecasts household power consumption from the
