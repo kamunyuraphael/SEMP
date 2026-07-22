@@ -57,7 +57,7 @@ export const getPredictionsByUser = async (userId: string, type?: IPrediction["t
     filter.type = type;
   }
 
-  return Prediction.find(filter as any)
+  return Prediction.find(filter)
     .sort({ timestamp: -1 })
     .limit(100)
     .populate('device', 'name category')

@@ -1,9 +1,9 @@
 // Prediction.ts This file defines the Mongoose schema and model for predictions in the HEMS application. It includes fields for the user associated with the prediction, the type of prediction (bill, consumption, anomaly), the predicted value, confidence score, timestamps, and optional details for anomalies. The model is used to create, read, update, and delete prediction documents in the MongoDB database.
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IPrediction extends Document {
-  user: Schema.Types.ObjectId;   // Reference to User
-  device?: Schema.Types.ObjectId; // Optional: per-device prediction
+  user: Types.ObjectId;   // Reference to User
+  device?: Types.ObjectId; // Optional: per-device prediction
   type: "bill" | "consumption" | "anomaly";
   predictedValue: number;        // Forecasted kWh or bill amount
   confidence: number;            // Confidence score (0–1)

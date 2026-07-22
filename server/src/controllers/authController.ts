@@ -56,7 +56,7 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const user = await User.findById(userId).populate("devices");
+    const user = await User.findById(userId).select("-password").populate("devices");
     if (!user) {
       return res.status(404).json({ success: false, error: "User not found" });
     }

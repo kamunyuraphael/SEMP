@@ -96,7 +96,7 @@ export default function Profile() {
                   width: 72,
                   height: 72,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-amber))',
+                  background: 'var(--accent-primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

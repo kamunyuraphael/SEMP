@@ -6,78 +6,47 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── Light Theme (Clean Technical Mint) ─────────────────────── */
+/* ── Light Theme ──────────────────────── */
 :root {
-  --bg-main: #F2F6F3;
-  /* Crisp mint-tinted light gray */
+  --bg-main: #F0F5F1;
   --bg-card: #FFFFFF;
-  --bg-surface: #E5EDE8;
-  /* Clean technical surface accent */
-  --bg-border: #D2DFD6;
-  /* Subtle green-tinted border line */
-
+  --bg-surface: #E4EDE7;
+  --bg-border: #C8D8CE;
   --accent-primary: #0A5C36;
-  /* Rich pine green for high-contrast actions */
-  --accent-secondary: #00A86B;
-  /* Crisp emerald for active indicators */
-  --accent-amber: #00D2C4;
-  /* Electric teal for efficient energy status */
+  --accent-secondary: #148A52;
+  --accent-amber: #00BFB3;
+  --warning: #B91C1C;
+  --text-primary: #07120D;
+  --text-secondary: #183B27;
+  --text-muted: #4A6858;
+  --callout: #E4EDE7;
 
-  --warning: #920b0b;
-  /* Standard sharp red for clear alerts */
-  --text-primary: #08130E;
-  /* Deep slate black for absolute reading clarity */
-  --text-secondary: #123022;
-  /* Pine charcoal for supporting copy */
-  --text-muted: #556B60;
-  /* Neutral desaturated sage for units/dates */
-  --callout: #E5EDE8;
-
-  /* Layout & Infrastructure */
+  /* Layout tokens unchanged */
   --sidebar-width: 232px;
   --navbar-height: 64px;
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --shadow-sm: 0 1px 3px rgba(8, 19, 14, 0.06);
-  --shadow-md: 0 4px 12px rgba(8, 19, 14, 0.1);
+  --shadow-md: 0 4px 12px rgba(8, 19, 14, 0.10);
   --shadow-lg: 0 8px 24px rgba(8, 19, 14, 0.14);
   --transition: all 0.2s ease;
 }
 
-/* ── Dark Theme (Premium Deep Pine & Electric Teal) ─────────── */
+/* ── Dark Theme ───────────────────────── */
 [data-theme="dark"] {
-  /* Backgrounds: Neutralized deep pine slate (No muddy olive tones) */
   --bg-main: #0B110E;
-  /* Pure dark obsidian with a sharp midnight-green tint */
-  --bg-card: #121A16;
-  /* Deep technical pine slate for clean dashboard grids */
-  --bg-surface: #1B2621;
-  /* Elevated dark container surface */
-  --bg-border: #24352D;
-  /* Sharp, subtle border that cuts clean boundaries */
-
-  /* Accents: High-efficiency energy telemetry colors */
-  --accent-primary: #00A86B;
-  /* Vibrant emerald green that jumps out beautifully */
-  --accent-secondary: #0A5C36;
-  /* Deep pine green for underlying structural active states */
-  --accent-amber: #00D2C4;
-  /* Crisp electric teal for high-efficiency metrics */
-  --warning: #8b0909;
-  /* Vivid desaturated coral-red for dark screen alerts */
-
-  /* Typography: Highly legible tech-greyscale */
-  --text-primary: #ffffff;
-  /* Crisp off-white with a cooling mint undertone */
-  --text-secondary: #ffffff;
-  /* Soft slate-sage for labels and secondary statistics */
-  --text-muted: #627A6E;
-  /* Muted technical gray for timestamp strings and metric units */
-  --callout: #1B2621;
-
-  /* Technical Sharp Depth Shadows */
+  --bg-card: #101910;
+  --bg-surface: #18261C;
+  --bg-border: #203528;
+  --accent-primary: #00C46E;
+  --accent-secondary: #0A7A46;
+  --accent-amber: #00D4C8;
+  --warning: #EF4444;
+  --text-primary: #EEF7F1;
+  --text-secondary: #A2BEA9;
+  --text-muted: #587A63;
+  --callout: #18261C;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
@@ -571,7 +540,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-amber));
+  background: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;

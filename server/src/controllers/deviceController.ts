@@ -99,7 +99,7 @@ export const getDevices = async (req: AuthRequest, res: Response, next: NextFunc
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const devices = await Device.find({ owner: new Types.ObjectId(userId) } as any).lean();
+    const devices = await Device.find({ owner: new Types.ObjectId(userId) }).lean();
     res.status(200).json({ success: true, data: devices });
   } catch (error) {
     next(error);

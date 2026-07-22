@@ -15,7 +15,7 @@ export const getAlerts = async (req: AuthRequest, res: Response, next: NextFunct
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const alerts = await Alert.find({ user: new Types.ObjectId(userId) } as any)
+    const alerts = await Alert.find({ user: new Types.ObjectId(userId) })
       .sort({ timestamp: -1 })
       .populate('device', 'name category')
       .lean();
@@ -59,7 +59,7 @@ export const markAllAlertsRead = async (req: AuthRequest, res: Response, next: N
     }
 
     const result = await Alert.updateMany(
-      { user: new Types.ObjectId(userId), read: false } as any,
+      { user: new Types.ObjectId(userId), read: false },
       { $set: { read: true } }
     );
 

@@ -127,7 +127,7 @@ export default function Predictions() {
             <div className="col-12 col-sm-4">
               <div className="stat-card">
                 <div className="stat-card-top">
-                  <span className="stat-card-label">Forecast kWh</span>
+                  <span className="stat-card-label">Daily Forecast kWh</span>
                   <div className="stat-card-icon amber">
                     <i className="bi bi-lightning-charge-fill" />
                   </div>
@@ -181,7 +181,7 @@ export default function Predictions() {
                 <div>
                   <div className="chart-title">Top Appliance Forecasts</div>
                   <div className="chart-subtitle">
-                    Predicted kWh — top 10 by consumption
+                    Predicted kWh - top 10 by consumption
                   </div>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export default function Predictions() {
 
               <p className="mt-2 mb-0" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 <i className="bi bi-info-circle me-1" />
-                Bar colour reflects model confidence —{' '}
+                Bar color reflects model confidence -{' '}
                 <span style={{ color: '#C15A02' }}>●</span> high (≥80%){' '}
                 <span style={{ color: '#E8A221' }}>●</span> medium (≥60%){' '}
                 <span style={{ color: '#862D03' }}>●</span> low
