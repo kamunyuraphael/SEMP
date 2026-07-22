@@ -325,7 +325,7 @@ export default function Dashboard() {
         <div className="chart-header">
           <div>
             <div className="chart-title">Insights</div>
-            <div className="chart-subtitle">Ways to reduce cost, based on today's data</div>
+            <div className="chart-subtitle">Reduce your cost, based on today's data</div>
           </div>
         </div>
         <div className="d-flex flex-column gap-2">

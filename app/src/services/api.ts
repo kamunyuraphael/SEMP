@@ -1,6 +1,6 @@
 // services/api.ts
-// Centralised Axios instance and typed API service functions.
-// All components import from here — never construct URLs manually elsewhere.
+// Centralized Axios instance and typed API service functions.
+// All components import from here — no constructing URLs manually elsewhere.
 
 import axios from 'axios';
 import type {
@@ -28,7 +28,7 @@ import type {
 // ─────────────────────────────────────────────────────────────
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://semp-server.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,7 +37,7 @@ const api = axios.create({
 
 // Attach JWT token to every request if present in localStorage
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('volta_token');
+  const token = localStorage.getItem('semp_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -50,8 +50,8 @@ api.interceptors.response.use(
   (error) => {
     // Token expired or invalid — clear auth and redirect to login
     if (error.response?.status === 401) {
-      localStorage.removeItem('volta_token');
-      localStorage.removeItem('volta_user');
+      localStorage.removeItem('semp_token');
+      localStorage.removeItem('semp_user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
