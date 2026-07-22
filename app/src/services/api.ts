@@ -37,7 +37,7 @@ const api = axios.create({
 
 // Attach JWT token to every request if present in localStorage
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('semp_token');
+  const token = localStorage.getItem('volta_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -50,8 +50,8 @@ api.interceptors.response.use(
   (error) => {
     // Token expired or invalid — clear auth and redirect to login
     if (error.response?.status === 401) {
-      localStorage.removeItem('semp_token');
-      localStorage.removeItem('semp_user');
+      localStorage.removeItem('volta_token');
+      localStorage.removeItem('volta_user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
