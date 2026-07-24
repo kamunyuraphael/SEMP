@@ -326,3 +326,133 @@ export const getCategoryBreakdownRange = async (
     next(error);
   }
 };
+
+/**
+ * PERIOD-OVER-PERIOD COMPARISON (current vs immediately preceding period)
+ * GET /api/telemetry/comparison?period=week|month
+ *
+ * Powers the Dashboard's comparison widget: total kWh + per-category kWh
+ * for "this week/month so far" vs the same elapsed span of the previous
+ * week/month, plus % change for the total and for each category.
+ */
+export const getComparison = async (
+  req: AuthenticateRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({ success: false, error: "Unauthorized access" });
+      return;
+    }
+
+    const period = req.query.period === "week" ? "week" : "month";
+    const now = new Date();
+
+    // "Current" period: from the start of this week/month up to now.
+    // "Previous" period: the same elapsed span, one week/month earlier —
+    // so a comparison run on day 10 of the month compares day-1-to-10
+    // against last month's day-1-to-10, not a lopsided full month.
+    let currentStart: Date;
+    let previousStart: Date;
+    let previousEnd: Date;
+
+    if (period === "week") {
+      const dayOfWeek = now.getDay(); // 0 = Sunday
+      currentStart = new Date(now);
+      currentStart.setDate(now.getDate() - dayOfWeek);
+      currentStart.setHours(0, 0, 0, 0);
+
+      previousStart = new Date(currentStart);
+      previousStart.setDate(previousStart.getDate() - 7);
+      previousEnd = new Date(now);
+      previousEnd.setDate(previousEnd.getDate() - 7);
+    } else {
+      currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      previousStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const dayOfMonth = now.getDate();
+      const daysInPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      previousEnd = new Date(
+        now.getFullYear(),
+        now.getMonth() - 1,
+        Math.min(dayOfMonth, daysInPrevMonth),
+        now.getHours(),
+        now.getMinutes()
+      );
+    }
+
+    const aggregateByCategory = async (from: Date, to: Date) => {
+      return Telemetry.aggregate([
+        {
+          $match: {
+            user: new Types.ObjectId(userId),
+            timestamp: { $gte: from, $lte: to },
+          },
+        },
+        {
+          $lookup: {
+            from: "devices",
+            localField: "device",
+            foreignField: "_id",
+            as: "deviceInfo",
+          },
+        },
+        { $unwind: "$deviceInfo" },
+        {
+          $group: {
+            _id: "$deviceInfo.category",
+            totalKWh: { $sum: "$kWh" },
+          },
+        },
+      ]);
+    };
+
+    const [currentByCategory, previousByCategory] = await Promise.all([
+      aggregateByCategory(currentStart, now),
+      aggregateByCategory(previousStart, previousEnd),
+    ]);
+
+    const currentMap = new Map(currentByCategory.map((c) => [c._id, c.totalKWh as number]));
+    const previousMap = new Map(previousByCategory.map((c) => [c._id, c.totalKWh as number]));
+    const allCategories = new Set([...currentMap.keys(), ...previousMap.keys()]);
+
+    const pctChange = (current: number, previous: number): number | null => {
+      if (previous === 0) return current === 0 ? 0 : null; // null = no baseline to compare against
+      return ((current - previous) / previous) * 100;
+    };
+
+    const categories = Array.from(allCategories).map((category) => {
+      const current = currentMap.get(category) || 0;
+      const previous = previousMap.get(category) || 0;
+      return {
+        category,
+        currentKWh: current,
+        previousKWh: previous,
+        changePercent: pctChange(current, previous),
+      };
+    });
+    categories.sort((a, b) => b.currentKWh - a.currentKWh);
+
+    const currentTotalKWh = categories.reduce((sum, c) => sum + c.currentKWh, 0);
+    const previousTotalKWh = categories.reduce((sum, c) => sum + c.previousKWh, 0);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        period,
+        currentRange: { from: currentStart.toISOString(), to: now.toISOString() },
+        previousRange: { from: previousStart.toISOString(), to: previousEnd.toISOString() },
+        totalKWh: {
+          current: currentTotalKWh,
+          previous: previousTotalKWh,
+          changePercent: pctChange(currentTotalKWh, previousTotalKWh),
+        },
+        categories,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

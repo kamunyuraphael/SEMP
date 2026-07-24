@@ -14,6 +14,8 @@ import {
 } from '../services/api';
 import { PowerLineChart } from '../components/charts/PowerLineChart';
 import { CategoryPie } from '../components/charts/CategoryPie';
+import ComparisonWidget from '../components/dashboard/ComparisonWidget';
+import BudgetWidget from '../components/dashboard/BudgetWidget';
 import { useSocket } from '../context/SocketContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { extractSeverity, timeAgo } from '../utils/anomaly';
@@ -325,7 +327,7 @@ export default function Dashboard() {
         <div className="chart-header">
           <div>
             <div className="chart-title">Insights</div>
-            <div className="chart-subtitle">Reduce your cost, based on today's data</div>
+            <div className="chart-subtitle">Ways to reduce cost, based on today's data</div>
           </div>
         </div>
         <div className="d-flex flex-column gap-2">
@@ -487,6 +489,15 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="row g-3 mt-1">
+        <div className="col-12 col-lg-6">
+          <ComparisonWidget />
+        </div>
+        <div className="col-12 col-lg-6">
+          <BudgetWidget />
         </div>
       </div>
     </div>

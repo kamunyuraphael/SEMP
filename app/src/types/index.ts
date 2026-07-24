@@ -12,6 +12,8 @@ export interface User {
   email: string;
   role: 'user' | 'admin';
   devices: string[];
+  monthlyBudgetKES?: number;
+  weeklyDigestEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -125,6 +127,44 @@ export interface CategoryBreakdown {
   totalKWh: number;
   totalWatts: number;
   readingCount: number;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Comparative analytics + budgeting
+// ─────────────────────────────────────────────────────────────
+
+export type ComparisonPeriod = 'week' | 'month';
+
+export interface CategoryComparison {
+  category: DeviceCategory;
+  currentKWh: number;
+  previousKWh: number;
+  changePercent: number | null; // null = no previous-period usage to compare against
+}
+
+export interface ComparisonResponse {
+  period: ComparisonPeriod;
+  currentRange: { from: string; to: string };
+  previousRange: { from: string; to: string };
+  totalKWh: {
+    current: number;
+    previous: number;
+    changePercent: number | null;
+  };
+  categories: CategoryComparison[];
+}
+
+export interface BillForecast {
+  monthToDateKWh: number;
+  projectedMonthlyKWh: number;
+  projectedBillKES: number;
+  tariffBand: string;
+  rateKESPerKWh: number;
+  daysElapsed: number;
+  daysInMonth: number;
+  monthlyBudgetKES?: number;
+  percentOfBudget?: number;
+  budgetThresholdCrossed: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────

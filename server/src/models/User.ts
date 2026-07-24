@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password: string;
   role: "user" | "admin";
   devices: Types.ObjectId[]; // References Device documents
+  monthlyBudgetKES?: number; // Optional self-set monthly spend target, used by budget threshold alerts
+  weeklyDigestEnabled: boolean; // Opt-in/out of the automated weekly email report
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +20,8 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true }, // hashed with bcrypt
     role: { type: String, enum: ["user", "admin"], default: "user" },
     devices: [{ type: Schema.Types.ObjectId, ref: "Device" }],
+    monthlyBudgetKES: { type: Number, min: 0 },
+    weeklyDigestEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -1,6 +1,6 @@
 // services/api.ts
-// Centralized Axios instance and typed API service functions.
-// All components import from here — no constructing URLs manually elsewhere.
+// Centralised Axios instance and typed API service functions.
+// All components import from here — never construct URLs manually elsewhere.
 
 import axios from 'axios';
 import type {
@@ -21,6 +21,9 @@ import type {
   PredictionType,
   Alert,
   ExportFormat,
+  ComparisonPeriod,
+  ComparisonResponse,
+  BillForecast,
 } from '../types/index.js';
 
 // ─────────────────────────────────────────────────────────────
@@ -28,7 +31,7 @@ import type {
 // ─────────────────────────────────────────────────────────────
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://semp-server.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -84,6 +87,13 @@ export const authService = {
     const { data } = await api.patch<ApiResponse<null>>('/auth/change-password', {
       currentPassword,
       newPassword,
+    });
+    return data;
+  },
+
+  updateBudget: async (monthlyBudgetKES: number | null): Promise<ApiResponse<{ monthlyBudgetKES: number | null }>> => {
+    const { data } = await api.patch<ApiResponse<{ monthlyBudgetKES: number | null }>>('/auth/budget', {
+      monthlyBudgetKES,
     });
     return data;
   },
@@ -151,6 +161,42 @@ export const telemetryService = {
   ): Promise<ApiResponse<DailyCategoryBreakdown[]>> => {
     const { data } = await api.get<ApiResponse<DailyCategoryBreakdown[]>>('/telemetry/breakdown-range', {
       params: { from, to, groupBy },
+    });
+    return data;
+  },
+
+  getComparison: async (period: ComparisonPeriod = 'month'): Promise<ApiResponse<ComparisonResponse>> => {
+    const { data } = await api.get<ApiResponse<ComparisonResponse>>('/telemetry/comparison', {
+      params: { period },
+    });
+    return data;
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// Budget Services
+// ─────────────────────────────────────────────────────────────
+
+export const budgetService = {
+  getForecast: async (): Promise<ApiResponse<BillForecast>> => {
+    const { data } = await api.get<ApiResponse<BillForecast>>('/budget/forecast');
+    return data;
+  },
+};
+
+// ─────────────────────────────────────────────────────────────
+// Weekly Digest Report Services
+// ─────────────────────────────────────────────────────────────
+
+export const reportService = {
+  sendNow: async (): Promise<ApiResponse<null>> => {
+    const { data } = await api.post<ApiResponse<null>>('/reports/weekly/send-now');
+    return data;
+  },
+
+  setDigestPreference: async (weeklyDigestEnabled: boolean): Promise<ApiResponse<{ weeklyDigestEnabled: boolean }>> => {
+    const { data } = await api.patch<ApiResponse<{ weeklyDigestEnabled: boolean }>>('/reports/weekly/preference', {
+      weeklyDigestEnabled,
     });
     return data;
   },

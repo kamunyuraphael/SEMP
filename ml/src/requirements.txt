@@ -1,0 +1,8 @@
+flask
+numpy
+pandas==2.2.3
+scikit-learn
+requests
+git+https://github.com/nilmtk/nilmtk@master#egg=nilmtk
+apscheduler
+python-dotenv

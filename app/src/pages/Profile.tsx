@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { authService } from '../services/api';
+import { authService, reportService } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 export default function Profile() {
@@ -21,6 +21,10 @@ export default function Profile() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  const [isTogglingDigest, setIsTogglingDigest] = useState(false);
+  const [digestMessage, setDigestMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [isSendingDigest, setIsSendingDigest] = useState(false);
 
   useEffect(() => {
     refreshProfile();
@@ -60,6 +64,32 @@ export default function Profile() {
   if (isLoading || !user) {
     return <LoadingSpinner fullPage label="Loading profile..." />;
   }
+
+  const handleToggleDigest = async () => {
+    setDigestMessage(null);
+    setIsTogglingDigest(true);
+    try {
+      await reportService.setDigestPreference(!(user.weeklyDigestEnabled ?? true));
+      await refreshProfile();
+    } catch (err: any) {
+      setDigestMessage({ text: err?.response?.data?.error || 'Failed to update preference.', isError: true });
+    } finally {
+      setIsTogglingDigest(false);
+    }
+  };
+
+  const handleSendDigestNow = async () => {
+    setDigestMessage(null);
+    setIsSendingDigest(true);
+    try {
+      const res = await reportService.sendNow();
+      setDigestMessage({ text: res.message || 'Digest sent.', isError: false });
+    } catch (err: any) {
+      setDigestMessage({ text: err?.response?.data?.error || 'Failed to send digest.', isError: true });
+    } finally {
+      setIsSendingDigest(false);
+    }
+  };
 
   const initials = user.username
     .split(' ')
@@ -205,6 +235,7 @@ export default function Profile() {
             {/* Timezone info */}
             <div
               className="d-flex justify-content-between align-items-center py-3"
+              style={{ borderBottom: '1px solid var(--bg-border)' }}
             >
               <div className="d-flex align-items-center gap-3">
                 <div className="stat-card-icon orange" style={{ width: 36, height: 36 }}>
@@ -220,6 +251,56 @@ export default function Profile() {
                 </div>
               </div>
             </div>
+
+            {/* Weekly email digest */}
+            <div className="d-flex justify-content-between align-items-center py-3">
+              <div className="d-flex align-items-center gap-3">
+                <div className="stat-card-icon amber" style={{ width: 36, height: 36 }}>
+                  <i className="bi bi-envelope-paper-fill" />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    Weekly Email Digest
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    {(user.weeklyDigestEnabled ?? true) ? 'Sent every Monday morning' : 'Currently off'}
+                  </div>
+                </div>
+              </div>
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  checked={user.weeklyDigestEnabled ?? true}
+                  onChange={handleToggleDigest}
+                  disabled={isTogglingDigest}
+                />
+              </div>
+            </div>
+
+            {digestMessage && (
+              <div className={`alert ${digestMessage.isError ? 'alert-danger' : 'alert-success'} py-2 mb-0 mt-2`}>
+                <i className={`bi ${digestMessage.isError ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'} me-2`} />
+                {digestMessage.text}
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-primary mt-3 w-100"
+              onClick={handleSendDigestNow}
+              disabled={isSendingDigest}
+            >
+              {isSendingDigest ? (
+                <span className="spinner-border spinner-border-sm" />
+              ) : (
+                <>
+                  <i className="bi bi-send me-2" />
+                  Send test digest now
+                </>
+              )}
+            </button>
           </div>
 
           {/* Change Password */}

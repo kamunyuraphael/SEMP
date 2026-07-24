@@ -7,6 +7,8 @@ export interface IUser {
     password: string; // hashed password
     role: 'user' | 'admin';
     devices: Types.ObjectId[]; // Array of Device IDs
+    monthlyBudgetKES?: number;
+    weeklyDigestEnabled?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }

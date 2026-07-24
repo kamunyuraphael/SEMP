@@ -58,6 +58,18 @@ export const telemetryRangeQuerySchema = z.object({
   groupBy: z.enum(['hour', 'day']).optional(),
 });
 
+export const comparisonQuerySchema = z.object({
+  period: z.enum(['week', 'month']).default('month'),
+});
+
+export const budgetSchema = z.object({
+  monthlyBudgetKES: z.number().positive('Monthly budget must be a positive number').nullable(),
+});
+
+export const digestPreferenceSchema = z.object({
+  weeklyDigestEnabled: z.boolean(),
+});
+
 export const predictionSchema = z.object({
   device: objectIdSchema.optional(),
   type: z.enum(['bill', 'consumption', 'anomaly']),

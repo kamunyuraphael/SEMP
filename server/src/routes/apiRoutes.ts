@@ -7,12 +7,14 @@ import { validateBody, validateQuery, validateParams } from "../middleware/valid
 import { requireMlApiKey } from "../middleware/apiKeyAuth.js";
 
 // Controllers
-import { registerUser, loginUser, getProfile, changePassword } from "../controllers/authController.js";
+import { registerUser, loginUser, getProfile, changePassword, setBudget } from "../controllers/authController.js";
 import { addDevice, deleteDevice, updateDeviceStatus, getDevices } from "../controllers/deviceController.js";
-import { getTelemetry, addTelemetry, getCategoryBreakdown, getTelemetrySummary, getCategoryBreakdownRange } from "../controllers/telemetryController.js";
+import { getTelemetry, addTelemetry, getCategoryBreakdown, getTelemetrySummary, getCategoryBreakdownRange, getComparison } from "../controllers/telemetryController.js";
 import { getPredictions, addPrediction, resolveAnomaly, resolveAllAnomalies } from "../controllers/predictionController.js";
 import { getAlerts, markAlertRead, markAllAlertsRead } from "../controllers/alertController.js";
 import { mlPredictionWebhook } from "../controllers/mlController.js";
+import { getForecast } from "../controllers/budgetController.js";
+import { sendDigestNow, setDigestPreference } from "../controllers/reportController.js";
 
 // Validation
 import {
@@ -25,6 +27,9 @@ import {
   telemetryQuerySchema,
   telemetrySummaryQuerySchema,
   telemetryRangeQuerySchema,
+  comparisonQuerySchema,
+  budgetSchema,
+  digestPreferenceSchema,
   predictionSchema,
   mlPredictionSchema,
   idParamSchema,
@@ -39,6 +44,7 @@ router.post("/auth/register", validateBody(registerSchema), registerUser);
 router.post("/auth/login", validateBody(loginSchema), loginUser);
 router.get("/auth/profile", authMiddleware, getProfile);
 router.patch("/auth/change-password", authMiddleware, validateBody(changePasswordSchema), changePassword);
+router.patch("/auth/budget", authMiddleware, validateBody(budgetSchema), setBudget);
 
 /* ---------------- DEVICE ROUTES ---------------- */
 router.post("/devices", authMiddleware, validateBody(deviceSchema), addDevice);
@@ -52,6 +58,14 @@ router.post("/telemetry", authMiddleware, validateBody(telemetrySchema), addTele
 router.get("/telemetry/breakdown", authMiddleware, validateQuery(telemetryQuerySchema), getCategoryBreakdown);
 router.get("/telemetry/summary", authMiddleware, validateQuery(telemetrySummaryQuerySchema), getTelemetrySummary);
 router.get("/telemetry/breakdown-range", authMiddleware, validateQuery(telemetryRangeQuerySchema), getCategoryBreakdownRange);
+router.get("/telemetry/comparison", authMiddleware, validateQuery(comparisonQuerySchema), getComparison);
+
+/* ---------------- BUDGET ROUTES ---------------- */
+router.get("/budget/forecast", authMiddleware, getForecast);
+
+/* ---------------- REPORT ROUTES ---------------- */
+router.post("/reports/weekly/send-now", authMiddleware, sendDigestNow);
+router.patch("/reports/weekly/preference", authMiddleware, validateBody(digestPreferenceSchema), setDigestPreference);
 
 /* ---------------- PREDICTION ROUTES ---------------- */
 router.get("/predictions", authMiddleware, getPredictions);

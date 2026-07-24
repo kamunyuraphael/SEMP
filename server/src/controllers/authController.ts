@@ -94,3 +94,34 @@ export const changePassword = async (req: AuthRequest, res: Response, next: Next
     next(error);
   }
 };
+
+/**
+ * SET / CLEAR MONTHLY BUDGET
+ * PATCH /api/auth/budget
+ * Body: { monthlyBudgetKES: number | null }  — null clears the budget.
+ */
+export const setBudget = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const { monthlyBudgetKES } = req.body as { monthlyBudgetKES: number | null };
+
+    const update =
+      monthlyBudgetKES === null
+        ? { $unset: { monthlyBudgetKES: "" } }
+        : { $set: { monthlyBudgetKES } };
+
+    const user = await User.findByIdAndUpdate(userId, update, { new: true }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.status(200).json({ success: true, data: { monthlyBudgetKES: user.monthlyBudgetKES ?? null } });
+  } catch (error) {
+    next(error);
+  }
+};
