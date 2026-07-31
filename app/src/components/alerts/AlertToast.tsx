@@ -14,19 +14,19 @@ const TYPE_META: Record<AlertType, { icon: string; color: string; bg: string; la
   anomaly: {
     icon: 'bi-exclamation-circle-fill',
     color: 'var(--warning)',
-    bg: 'rgba(134, 45, 3, 0.15)',
+    bg: 'rgba(var(--warning-rgb), 0.15)',
     label: 'Anomaly',
   },
   threshold: {
     icon: 'bi-graph-up-arrow',
     color: 'var(--accent-primary)',
-    bg: 'rgba(193, 90, 2, 0.15)',
+    bg: 'rgba(var(--accent-primary-rgb), 0.15)',
     label: 'Threshold',
   },
   info: {
     icon: 'bi-info-circle-fill',
     color: 'var(--accent-amber)',
-    bg: 'rgba(232, 162, 33, 0.15)',
+    bg: 'rgba(var(--accent-amber-rgb), 0.15)',
     label: 'Info',
   },
 };

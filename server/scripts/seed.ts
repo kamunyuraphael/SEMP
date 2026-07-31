@@ -1,12 +1,11 @@
 // scripts/seed.ts
 //
-// Populates YOUR real registered account with realistic devices,
+// Populates real registered account with realistic devices,
 // telemetry, predictions, and alerts — so the client can be exercised
 // end-to-end against the server without needing the Python analytics
 // layer running yet.
 //
-// Unlike an earlier version of this script, this does NOT create a new
-// demo account or touch your password — it looks up your existing
+// It looks up existing
 // account by email (falling back to the _id below if the email lookup
 // fails) and only ever seeds/clears THAT account's own devices,
 // telemetry, predictions, and alerts. Safe to re-run.
@@ -53,7 +52,7 @@ const TELEMETRY_DAYS = 45;
 
 async function seed() {
   await connectDB();
-  logger.info("Connected — seeding test data");
+  logger.info("Connected: seeding test data");
 
   // ── Find your existing account (never create/overwrite a password) ──
   let user = await User.findOne({ email: TARGET_EMAIL.toLowerCase() });
@@ -255,7 +254,7 @@ async function seed() {
   console.log(`User _id: ${userId.toString()}`);
   console.log(
     "\nThis _id should already match analytics-python's DEFAULT_USER_ID " +
-    "in .env — double check they agree so ML predictions land on this " +
+    "in .env so ML predictions land on this " +
     "same account.\n"
   );
 

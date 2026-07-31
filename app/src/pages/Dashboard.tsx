@@ -16,8 +16,8 @@ import { PowerLineChart } from '../components/charts/PowerLineChart';
 import { CategoryPie } from '../components/charts/CategoryPie';
 import ComparisonWidget from '../components/dashboard/ComparisonWidget';
 import BudgetWidget from '../components/dashboard/BudgetWidget';
+import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import { useSocket } from '../context/SocketContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { extractSeverity, timeAgo } from '../utils/anomaly';
 import { CATEGORY_COLORS } from '../utils/categoryColors';
 import { generateInsights } from '../utils/insights';
@@ -28,8 +28,7 @@ import type {
   TelemetrySummary,
   Prediction,
 } from '../types/index';
-
-const KSH_RATE_PER_KWH = 21.0;
+import { estimateEnergyChargeKES } from '../utils/tariff';
 
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -60,6 +59,7 @@ export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [telemetry, setTelemetry] = useState<TelemetryRecord[]>([]);
   const [breakdown, setBreakdown] = useState<CategoryBreakdown[]>([]);
+  const [breakdownDateLabel, setBreakdownDateLabel] = useState<string | null>(null);
   const [yesterdayBreakdown, setYesterdayBreakdown] = useState<CategoryBreakdown[]>([]);
   const [monthToDate, setMonthToDate] = useState<TelemetrySummary | null>(null);
   const [lastMonthEquivalent, setLastMonthEquivalent] = useState<TelemetrySummary | null>(null);
@@ -93,6 +93,7 @@ export default function Dashboard() {
       setDevices(devicesRes.data);
       setTelemetry(telemetryRes.data);
       setBreakdown(breakdownRes.data);
+      setBreakdownDateLabel(breakdownRes.dateLabel || null);
       setYesterdayBreakdown(yesterdayRes.data);
       setMonthToDate(monthRes.data);
       setLastMonthEquivalent(lastMonthRes.data);
@@ -163,8 +164,8 @@ export default function Dashboard() {
   const kWhTrendPct = yesterdayKWh > 0 ? ((todayKWh - yesterdayKWh) / yesterdayKWh) * 100 : null;
 
   // ── Month to Date vs same elapsed period last month ─────────────────
-  const monthToDateCost = (monthToDate?.totalKWh || 0) * KSH_RATE_PER_KWH;
-  const lastMonthEquivalentCost = (lastMonthEquivalent?.totalKWh || 0) * KSH_RATE_PER_KWH;
+  const monthToDateCost = estimateEnergyChargeKES(monthToDate?.totalKWh || 0);
+  const lastMonthEquivalentCost = estimateEnergyChargeKES(lastMonthEquivalent?.totalKWh || 0);
   const monthTrendPct =
     lastMonthEquivalentCost > 0
       ? ((monthToDateCost - lastMonthEquivalentCost) / lastMonthEquivalentCost) * 100
@@ -207,7 +208,7 @@ export default function Dashboard() {
   const pieData = breakdown.map((b) => ({
     name: b.category,
     value: b.totalKWh,
-    fill: CATEGORY_COLORS[b.category] || '#C15A02',
+    fill: CATEGORY_COLORS[b.category] || '#16825D',
   }));
 
   const insights = generateInsights({
@@ -218,7 +219,7 @@ export default function Dashboard() {
   });
 
   if (isLoading) {
-    return <LoadingSpinner fullPage label="Loading dashboard..." />;
+    return <DashboardSkeleton />;
   }
 
   const renderTrend = (pct: number | null, positiveIsGood: boolean, fallback: string) => {
@@ -339,9 +340,9 @@ export default function Dashboard() {
                 borderRadius: 'var(--radius-sm)',
                 backgroundColor:
                   insight.tone === 'warning'
-                    ? 'rgba(193, 90, 2, 0.08)'
+                    ? 'rgba(var(--warning-rgb), 0.08)'
                     : insight.tone === 'success'
-                    ? 'rgba(232, 162, 33, 0.08)'
+                    ? 'rgba(var(--accent-amber-rgb), 0.08)'
                     : 'var(--bg-surface)',
               }}
             >
@@ -405,7 +406,9 @@ export default function Dashboard() {
             <div className="chart-header">
               <div>
                 <div className="chart-title">Consumption by Category</div>
-                <div className="chart-subtitle">Today's breakdown</div>
+                <div className="chart-subtitle">
+                  {breakdownDateLabel ? `Breakdown for ${breakdownDateLabel} (EAT)` : "Today's breakdown"}
+                </div>
               </div>
             </div>
 

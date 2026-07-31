@@ -1,18 +1,22 @@
 // utils/categoryColors.ts
-// Shared category -> colour mapping, pulled from the SEMP amber/rust
-// palette. Used by any chart that breaks consumption down by device
-// category (Dashboard's pie chart, Telemetry's stacked bar chart, etc.)
-// so the same category always renders the same colour everywhere.
+// Shared category -> colour mapping, drawn from SEMP's forest-green/teal
+// brand palette (see index.css --accent-primary/--accent-amber) rather
+// than a standalone palette, so every chart — Dashboard's pie chart,
+// ComparisonWidget, Telemetry's stacked bar chart, etc. — reads as part
+// of the same visual system instead of clashing with it. Kept as static
+// hex (not CSS variables) since these need to stay visually distinct
+// from each other across a pie/bar chart regardless of light/dark theme;
+// each shade below was picked to hold reasonable contrast in both.
 
 import type { DeviceCategory } from '../types/index';
 
 export const CATEGORY_COLORS: Record<DeviceCategory, string> = {
-  kitchen: '#C15A02',
-  laundry: '#862D03',
-  lighting: '#E8A221',
-  entertainment: '#510B03',
-  HVAC: '#320B09',
-  computing: '#A8632F',
+  kitchen: '#16825D',
+  laundry: '#00BFB3',
+  lighting: '#E8B93D',
+  entertainment: '#3E9B75',
+  HVAC: '#0A5C36',
+  computing: '#6FA98C',
 };
 
 export const CATEGORY_LABELS: Record<DeviceCategory, string> = {

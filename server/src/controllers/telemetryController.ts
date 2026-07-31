@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import { Telemetry } from "../models/Telemetry.js";
 import { Device } from "../models/Devices.js";
 import type { ITelemetryData } from "../types/Telemetry.d.js";
+import { nairobiDayRange } from "../utils/nairobiTime.js";
 
 interface AuthenticateRequest extends Request {
   user?: { id: string };
@@ -188,17 +189,16 @@ export const getCategoryBreakdown = async (
 
     const dateParam =
       typeof req.query.date === "string" ? req.query.date : undefined;
-    const targetDate = dateParam ? new Date(dateParam) : new Date();
 
-    if (isNaN(targetDate.getTime())) {
-      res.status(400).json({ success: false, error: "Invalid date parameter" });
+    if (dateParam && !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      res.status(400).json({ success: false, error: "Invalid date parameter — expected YYYY-MM-DD" });
       return;
     }
 
-    const dayStart = new Date(targetDate);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(dayStart);
-    dayEnd.setDate(dayEnd.getDate() + 1);
+    // Anchored to Africa/Nairobi (EAT, fixed UTC+3) rather than the
+    // server process's own timezone — see utils/nairobiTime.ts for why
+    // that distinction matters on a UTC-default host like Render.
+    const { dayStart, dayEnd, dateLabel } = nairobiDayRange(dateParam);
 
     const breakdown = await Telemetry.aggregate([
       {
@@ -239,6 +239,7 @@ export const getCategoryBreakdown = async (
     res.status(200).json({
       success: true,
       count: breakdown.length,
+      dateLabel,
       data: breakdown,
     });
   } catch (error) {

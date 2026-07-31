@@ -83,7 +83,7 @@ export default function Navbar({ onMenuClick, notificationCount = 0 }: NavbarPro
           <span
             className="badge rounded-pill"
             style={{
-              backgroundColor: 'rgba(134, 45, 3, 0.15)',
+              backgroundColor: 'rgba(var(--warning-rgb), 0.15)',
               color: 'var(--warning)',
               fontSize: '0.65rem',
               fontWeight: 600,

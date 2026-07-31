@@ -4,10 +4,12 @@
 // Filters by prediction type (bill / consumption / anomaly).
 
 import { useState, useEffect, useCallback } from 'react';
-import { predictionService } from '../services/api';
+import { predictionService, telemetryService } from '../services/api';
 import { ConsumptionBar } from '../components/charts/ConsumptionBar';
+import { ForecastLineChart } from '../components/charts/ForecastLineChart';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import type { Prediction, PredictionType, Device } from '../types/index';
+import { estimateEnergyChargeKES } from '../utils/tariff';
 
 const TYPE_OPTIONS: { value: PredictionType | 'all'; label: string; icon: string }[] = [
   { value: 'all', label: 'All', icon: 'bi-grid-fill' },
@@ -17,12 +19,10 @@ const TYPE_OPTIONS: { value: PredictionType | 'all'; label: string; icon: string
 ];
 
 const CONFIDENCE_COLOR = (confidence: number): string => {
-  if (confidence >= 0.8) return '#C15A02';
-  if (confidence >= 0.6) return '#E8A221';
-  return '#862D03';
+  if (confidence >= 0.8) return 'var(--accent-primary)';
+  if (confidence >= 0.6) return 'var(--accent-amber)';
+  return 'var(--warning)';
 };
-
-const KSH_RATE = 21.0;
 
 export default function Predictions() {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
@@ -48,6 +48,32 @@ export default function Predictions() {
   useEffect(() => {
     fetchPredictions(filter);
   }, [filter, fetchPredictions]);
+
+  // Last 7 days of actual usage, for the actual->predicted line chart.
+  // Non-critical: if this fails, the chart just renders forecast-only.
+  const [dailyActual, setDailyActual] = useState<{ day: string; label: string; value: number }[]>([]);
+  useEffect(() => {
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(from.getDate() - 6);
+    telemetryService
+      .getCategoryBreakdownRange(from.toISOString(), to.toISOString(), 'day')
+      .then((res) => {
+        const byDay = new Map<string, number>();
+        res.data.forEach((row) => {
+          byDay.set(row.period, (byDay.get(row.period) || 0) + row.totalKWh);
+        });
+        const sortedDays = Array.from(byDay.keys()).sort();
+        setDailyActual(
+          sortedDays.map((day) => ({
+            day,
+            label: new Date(`${day}T00:00:00Z`).toLocaleDateString('en-US', { weekday: 'short' }),
+            value: byDay.get(day) || 0,
+          }))
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const deviceName = (device?: string | Device): string => {
     if (!device) return '—';
@@ -76,6 +102,34 @@ export default function Predictions() {
       kWh: p.predictedValue,
       confidence: p.confidence,
     }));
+
+  // Daily forecast total (summed across devices per target day), for
+  // the actual->predicted line chart. Band half-width is derived from
+  // average confidence for that day — see ForecastLineChart.tsx for why
+  // this is an approximation, not a real statistical interval.
+  const dailyForecast = (() => {
+    const byDay = new Map<string, { total: number; confidenceSum: number; count: number }>();
+    consumptionPredictions.forEach((p) => {
+      const day = p.targetDate.slice(0, 10);
+      const entry = byDay.get(day) || { total: 0, confidenceSum: 0, count: 0 };
+      entry.total += p.predictedValue;
+      entry.confidenceSum += p.confidence;
+      entry.count += 1;
+      byDay.set(day, entry);
+    });
+    return Array.from(byDay.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([day, entry]) => {
+        const avgConfidence = entry.confidenceSum / entry.count;
+        const bandFraction = Math.max(0.05, (1 - avgConfidence) * 0.5);
+        return {
+          label: new Date(`${day}T00:00:00Z`).toLocaleDateString('en-US', { weekday: 'short' }),
+          value: entry.total,
+          lower: Math.max(0, entry.total * (1 - bandFraction)),
+          upper: entry.total * (1 + bandFraction),
+        };
+      });
+  })();
 
   return (
     <div>
@@ -148,7 +202,7 @@ export default function Predictions() {
                 <div className="stat-card-value">
                   {latestBill
                     ? `KSh ${latestBill.predictedValue.toFixed(2)}`
-                    : `KSh ${(totalForecastKWh * KSH_RATE).toFixed(2)}`}
+                    : `KSh ${estimateEnergyChargeKES(totalForecastKWh).toFixed(2)}`}
                 </div>
                 <div className="stat-card-sub">
                   {latestBill
@@ -173,6 +227,32 @@ export default function Predictions() {
               </div>
             </div>
           </div>
+
+          {/* ── Actual vs Predicted Trend ─────────────────────── */}
+          {(dailyActual.length > 0 || dailyForecast.length > 0) && (
+            <div className="chart-card mb-4">
+              <div className="chart-header">
+                <div>
+                  <div className="chart-title">Actual vs Predicted Usage</div>
+                  <div className="chart-subtitle">
+                    Last 7 days of actual usage, forecast ahead with a confidence band
+                  </div>
+                </div>
+              </div>
+
+              <ForecastLineChart
+                history={dailyActual.map((d) => ({ label: d.label, value: d.value }))}
+                forecast={dailyForecast}
+                height={280}
+              />
+
+              <p className="mt-2 mb-0" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                <i className="bi bi-info-circle me-1" />
+                The shaded band is derived from the model's confidence score, not a statistical prediction
+                interval — treat it as how much the model is hedging, not an exact range.
+              </p>
+            </div>
+          )}
 
           {/* ── Consumption Bar Chart ─────────────────────────── */}
           {consumptionPredictions.length > 0 && (
@@ -199,9 +279,9 @@ export default function Predictions() {
               <p className="mt-2 mb-0" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 <i className="bi bi-info-circle me-1" />
                 Bar color reflects model confidence -{' '}
-                <span style={{ color: '#C15A02' }}>●</span> high (≥80%){' '}
-                <span style={{ color: '#E8A221' }}>●</span> medium (≥60%){' '}
-                <span style={{ color: '#862D03' }}>●</span> low
+                <span style={{ color: 'var(--accent-primary)' }}>●</span> high (≥80%){' '}
+                <span style={{ color: 'var(--accent-amber)' }}>●</span> medium (≥60%){' '}
+                <span style={{ color: 'var(--warning)' }}>●</span> low
               </p>
             </div>
           )}
@@ -249,16 +329,16 @@ export default function Predictions() {
                             style={{
                               backgroundColor:
                                 p.type === 'bill'
-                                  ? 'rgba(232,162,33,0.15)'
+                                  ? 'rgba(var(--accent-amber-rgb), 0.15)'
                                   : p.type === 'anomaly'
-                                  ? 'rgba(134,45,3,0.15)'
-                                  : 'rgba(193,90,2,0.15)',
+                                  ? 'rgba(var(--warning-rgb), 0.15)'
+                                  : 'rgba(var(--accent-primary-rgb), 0.15)',
                               color:
                                 p.type === 'bill'
-                                  ? '#E8A221'
+                                  ? 'var(--accent-amber)'
                                   : p.type === 'anomaly'
-                                  ? '#862D03'
-                                  : '#C15A02',
+                                  ? 'var(--warning)'
+                                  : 'var(--accent-primary)',
                             }}
                           >
                             {p.type}

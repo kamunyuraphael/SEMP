@@ -10,6 +10,8 @@ import type { NavItem } from '../../types/index';
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
   anomalyCount?: number;
   notificationCount?: number;
 }
@@ -27,6 +29,8 @@ const NAV_ITEMS: NavItem[] = [
 export default function Sidebar({
   isOpen,
   onClose,
+  isCollapsed = false,
+  onToggleCollapse,
   anomalyCount = 0,
   notificationCount = 0,
 }: SidebarProps) {
@@ -40,7 +44,7 @@ export default function Sidebar({
   };
 
   return (
-    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+    <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
       {/* Brand */}
       <NavLink to="/dashboard" className="sidebar-brand">
         {/*<div className="sidebar-brand-icon">
@@ -61,6 +65,7 @@ export default function Sidebar({
               key={item.path}
               to={item.path}
               onClick={handleNavClick}
+              title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
                 `sidebar-nav-item ${isActive ? 'active' : ''}`
               }
@@ -78,6 +83,7 @@ export default function Sidebar({
         <NavLink
           to="/notifications"
           onClick={handleNavClick}
+          title={isCollapsed ? 'Notifications' : undefined}
           className={({ isActive }) =>
             `sidebar-nav-item ${isActive ? 'active' : ''}`
           }
@@ -92,6 +98,7 @@ export default function Sidebar({
         <NavLink
           to="/profile"
           onClick={handleNavClick}
+          title={isCollapsed ? 'Profile' : undefined}
           className={({ isActive }) =>
             `sidebar-nav-item ${isActive ? 'active' : ''}`
           }
@@ -104,11 +111,27 @@ export default function Sidebar({
           type="button"
           className="sidebar-nav-item w-100 border-0 bg-transparent text-start"
           onClick={logout}
+          title={isCollapsed ? 'Sign out' : undefined}
         >
           <i className="bi bi-box-arrow-right sidebar-nav-icon" />
           <span>Sign out</span>
         </button>
       </div>
+
+      {/* Desktop-only collapse toggle — gives more horizontal room for
+          charts/tables on smaller laptop screens without losing nav
+          access (icons + hover tooltips still work when collapsed). */}
+      {onToggleCollapse && (
+        <button
+          type="button"
+          className="sidebar-collapse-toggle d-none d-md-flex"
+          onClick={onToggleCollapse}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <i className={`bi ${isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`} />
+          <span>Collapse</span>
+        </button>
+      )}
     </aside>
   );
 }

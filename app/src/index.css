@@ -13,9 +13,12 @@
   --bg-surface: #E4EDE7;
   --bg-border: #C8D8CE;
   --accent-primary: #0A5C36;
+  --accent-primary-rgb: 10, 92, 54;
   --accent-secondary: #148A52;
   --accent-amber: #00BFB3;
+  --accent-amber-rgb: 0, 191, 179;
   --warning: #B91C1C;
+  --warning-rgb: 185, 28, 28;
   --text-primary: #07120D;
   --text-secondary: #183B27;
   --text-muted: #4A6858;
@@ -40,9 +43,12 @@
   --bg-surface: #18261C;
   --bg-border: #203528;
   --accent-primary: #00C46E;
+  --accent-primary-rgb: 0, 196, 110;
   --accent-secondary: #0A7A46;
   --accent-amber: #00D4C8;
+  --accent-amber-rgb: 0, 212, 200;
   --warning: #EF4444;
+  --warning-rgb: 239, 68, 68;
   --text-primary: #EEF7F1;
   --text-secondary: #A2BEA9;
   --text-muted: #587A63;
@@ -83,6 +89,45 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+}
+
+/* ── Skeleton loading placeholders ─────────────────────────────── */
+.skeleton-block {
+  background: linear-gradient(
+    100deg,
+    var(--bg-surface) 30%,
+    var(--bg-border) 50%,
+    var(--bg-surface) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+/* ── Accessibility: keyboard focus ─────────────────────────────
+   A theme-matched focus ring for keyboard navigation (Tab/Shift+Tab).
+   :focus-visible means it only shows for keyboard users, not on
+   mouse click, so it doesn't add visual noise to normal interaction. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
 }
 
 /* ── Bootstrap Overrides ────────────────────────────────────── */
@@ -126,7 +171,7 @@ body {
 .btn-primary:focus {
   background-color: var(--accent-secondary) !important;
   border-color: var(--accent-secondary) !important;
-  box-shadow: 0 0 0 0.25rem rgba(193, 90, 2, 0.25) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-primary-rgb), 0.25) !important;
 }
 
 .btn-outline-primary {
@@ -162,7 +207,7 @@ body {
   background-color: var(--bg-surface) !important;
   border-color: var(--accent-primary) !important;
   color: var(--text-primary) !important;
-  box-shadow: 0 0 0 0.25rem rgba(193, 90, 2, 0.2) !important;
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-primary-rgb), 0.2) !important;
 }
 
 .form-control::placeholder {
@@ -293,19 +338,19 @@ body {
 
 /* Alerts */
 .alert-warning {
-  background-color: rgba(232, 162, 33, 0.15) !important;
+  background-color: rgba(var(--accent-amber-rgb), 0.15) !important;
   border-color: var(--accent-amber) !important;
   color: var(--text-primary) !important;
 }
 
 .alert-danger {
-  background-color: rgba(134, 45, 3, 0.15) !important;
+  background-color: rgba(var(--warning-rgb), 0.15) !important;
   border-color: var(--warning) !important;
   color: var(--text-primary) !important;
 }
 
 .alert-success {
-  background-color: rgba(193, 90, 2, 0.15) !important;
+  background-color: rgba(var(--accent-primary-rgb), 0.15) !important;
   border-color: var(--accent-primary) !important;
   color: var(--text-primary) !important;
 }
@@ -379,6 +424,64 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
+}
+
+/* Icon-only collapsed state — desktop only. On mobile the sidebar is a
+   full-width drawer (see the 768px media query below), so collapse
+   doesn't apply there regardless of the toggle's last-saved state. */
+@media (min-width: 769px) {
+  .sidebar.collapsed {
+    width: 72px;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item span,
+  .sidebar.collapsed .sidebar-brand-name {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item {
+    justify-content: center;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item .sidebar-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 8px;
+    height: 8px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+    padding: 1.25rem 0.5rem;
+  }
+
+  .sidebar-collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.6rem;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--bg-border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .sidebar-collapse-toggle:hover {
+    color: var(--accent-primary);
+    background-color: var(--bg-surface);
+  }
+
+  .sidebar.collapsed .sidebar-collapse-toggle span {
+    display: none;
+  }
 }
 
 .sidebar-brand {
@@ -554,7 +657,7 @@ body {
 
 .navbar-avatar:hover {
   opacity: 0.9;
-  box-shadow: 0 0 0 3px rgba(193, 90, 2, 0.3);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .notification-dot {
@@ -579,7 +682,7 @@ body {
 }
 
 .stat-card:hover {
-  box-shadow: var(--shadow-md), 0 0 0 1px rgba(193, 90, 2, 0.08);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(var(--accent-primary-rgb), 0.08);
   border-color: var(--accent-primary);
   transform: translateY(-2px);
 }
@@ -608,17 +711,17 @@ body {
 }
 
 .stat-card-icon.amber {
-  background-color: rgba(232, 162, 33, 0.15);
+  background-color: rgba(var(--accent-amber-rgb), 0.15);
   color: var(--accent-amber);
 }
 
 .stat-card-icon.orange {
-  background-color: rgba(193, 90, 2, 0.15);
+  background-color: rgba(var(--accent-primary-rgb), 0.15);
   color: var(--accent-primary);
 }
 
 .stat-card-icon.rust {
-  background-color: rgba(134, 45, 3, 0.15);
+  background-color: rgba(var(--warning-rgb), 0.15);
   color: var(--warning);
 }
 
@@ -670,7 +773,7 @@ body {
 }
 
 .chart-card:hover {
-  box-shadow: var(--shadow-md), 0 0 0 1px rgba(193, 90, 2, 0.08);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(var(--accent-primary-rgb), 0.08);
   border-color: var(--accent-primary);
 }
 
@@ -731,14 +834,14 @@ body {
 }
 
 .device-status.active {
-  background-color: rgba(193, 90, 2, 0.12);
-  border-color: rgba(193, 90, 2, 0.3);
+  background-color: rgba(var(--accent-primary-rgb), 0.12);
+  border-color: rgba(var(--accent-primary-rgb), 0.3);
   color: var(--accent-primary);
 }
 
 .device-status.inactive {
-  background-color: rgba(134, 45, 3, 0.12);
-  border-color: rgba(134, 45, 3, 0.3);
+  background-color: rgba(var(--warning-rgb), 0.12);
+  border-color: rgba(var(--warning-rgb), 0.3);
   color: var(--warning);
 }
 
@@ -767,20 +870,20 @@ body {
 }
 
 .severity-low {
-  background-color: rgba(232, 162, 33, 0.15);
-  border-color: rgba(232, 162, 33, 0.35);
+  background-color: rgba(var(--accent-amber-rgb), 0.15);
+  border-color: rgba(var(--accent-amber-rgb), 0.35);
   color: var(--accent-amber);
 }
 
 .severity-medium {
-  background-color: rgba(193, 90, 2, 0.15);
-  border-color: rgba(193, 90, 2, 0.35);
+  background-color: rgba(var(--accent-primary-rgb), 0.15);
+  border-color: rgba(var(--accent-primary-rgb), 0.35);
   color: var(--accent-primary);
 }
 
 .severity-high {
-  background-color: rgba(134, 45, 3, 0.2);
-  border-color: rgba(134, 45, 3, 0.4);
+  background-color: rgba(var(--warning-rgb), 0.2);
+  border-color: rgba(var(--warning-rgb), 0.4);
   color: var(--warning);
 }
 

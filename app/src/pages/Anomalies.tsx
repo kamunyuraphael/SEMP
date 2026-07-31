@@ -126,7 +126,7 @@ export default function Anomalies() {
         <div className="chart-card mb-4" style={{ border: '1px solid var(--warning)' }}>
           <div className="chart-header mb-3">
             <div className="d-flex align-items-center gap-2">
-              <span className="live-dot" style={{ backgroundColor: '#862D03' }} />
+              <span className="live-dot" style={{ backgroundColor: 'var(--warning)' }} />
               <div className="chart-title" style={{ color: 'var(--warning)' }}>
                 {liveAnomalyAlerts.length} Live Anomaly Alert{liveAnomalyAlerts.length !== 1 ? 's' : ''}
               </div>
@@ -138,7 +138,7 @@ export default function Anomalies() {
               <div
                 key={i}
                 className="d-flex justify-content-between align-items-start p-3 rounded"
-                style={{ backgroundColor: 'rgba(134,45,3,0.1)', border: '1px solid rgba(134,45,3,0.2)' }}
+                style={{ backgroundColor: 'rgba(var(--warning-rgb), 0.1)', border: '1px solid rgba(var(--warning-rgb), 0.2)' }}
               >
                 <div className="d-flex gap-3">
                   <i
@@ -188,7 +188,7 @@ export default function Anomalies() {
                     <i className="bi bi-exclamation-triangle-fill" />
                   </div>
                 </div>
-                <div className="stat-card-value" style={{ color: '#862D03' }}>{highCount}</div>
+                <div className="stat-card-value" style={{ color: 'var(--warning)' }}>{highCount}</div>
               </div>
             </div>
 
@@ -204,7 +204,7 @@ export default function Anomalies() {
                     <i className="bi bi-exclamation-circle-fill" />
                   </div>
                 </div>
-                <div className="stat-card-value" style={{ color: '#C15A02' }}>{mediumCount}</div>
+                <div className="stat-card-value" style={{ color: 'var(--accent-primary)' }}>{mediumCount}</div>
               </div>
             </div>
 
@@ -220,7 +220,7 @@ export default function Anomalies() {
                     <i className="bi bi-info-circle-fill" />
                   </div>
                 </div>
-                <div className="stat-card-value" style={{ color: '#E8A221' }}>{lowCount}</div>
+                <div className="stat-card-value" style={{ color: 'var(--accent-amber)' }}>{lowCount}</div>
               </div>
             </div>
           </div>
@@ -284,10 +284,10 @@ export default function Anomalies() {
                           borderRadius: 8,
                           backgroundColor:
                             severity === 'high'
-                              ? 'rgba(134,45,3,0.15)'
+                              ? 'rgba(var(--warning-rgb), 0.15)'
                               : severity === 'medium'
-                              ? 'rgba(193,90,2,0.15)'
-                              : 'rgba(232,162,33,0.15)',
+                              ? 'rgba(var(--accent-primary-rgb), 0.15)'
+                              : 'rgba(var(--accent-amber-rgb), 0.15)',
                         }}
                       >
                         <i
@@ -295,10 +295,10 @@ export default function Anomalies() {
                           style={{
                             color:
                               severity === 'high'
-                                ? '#862D03'
+                                ? 'var(--warning)'
                                 : severity === 'medium'
-                                ? '#C15A02'
-                                : '#E8A221',
+                                ? 'var(--accent-primary)'
+                                : 'var(--accent-amber)',
                           }}
                         />
                       </div>

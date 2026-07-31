@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import logger from "./utils/logger.js";
 import { initIO } from "./utils/socketEvents.js";
 import { startWeeklyDigestScheduler } from "./scheduler.js";
+import { startTelemetrySimulator } from "./telemetrySimulator.js";
 import type { ServerToClientEvents, ClientToServerEvents } from "./types/SocketEvents.js";
 
 dotenv.config();
@@ -56,6 +57,7 @@ const startServer = async (): Promise<void> => {
       logger.info(`🚀 HEMS Engine orchestrating safely on port ${PORT}`);
     });
     startWeeklyDigestScheduler();
+    startTelemetrySimulator();
   } catch (error) {
     logger.error("Fatal startup error:", error);
     process.exit(1);

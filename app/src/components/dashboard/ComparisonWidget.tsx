@@ -114,7 +114,7 @@ export default function ComparisonWidget() {
                     width: 10,
                     height: 10,
                     borderRadius: '50%',
-                    backgroundColor: CATEGORY_COLORS[cat.category] || '#C15A02',
+                    backgroundColor: CATEGORY_COLORS[cat.category] || '#16825D',
                     flexShrink: 0,
                   }}
                 />

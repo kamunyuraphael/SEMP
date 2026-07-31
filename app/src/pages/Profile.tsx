@@ -151,7 +151,7 @@ export default function Profile() {
                 <span
                   className="badge mt-1"
                   style={{
-                    backgroundColor: 'rgba(193,90,2,0.15)',
+                    backgroundColor: 'rgba(var(--accent-primary-rgb), 0.15)',
                     color: 'var(--accent-primary)',
                     textTransform: 'capitalize',
                   }}
@@ -375,7 +375,7 @@ export default function Profile() {
           {/* Danger Zone */}
           <div
             className="chart-card"
-            style={{ border: '1px solid rgba(134,45,3,0.3)' }}
+            style={{ border: '1px solid rgba(var(--warning-rgb), 0.3)' }}
           >
             <div
               className="chart-title mb-3"
@@ -394,9 +394,9 @@ export default function Profile() {
               type="button"
               className="btn w-100"
               style={{
-                backgroundColor: 'rgba(134,45,3,0.1)',
+                backgroundColor: 'rgba(var(--warning-rgb), 0.1)',
                 color: 'var(--warning)',
-                border: '1px solid rgba(134,45,3,0.3)',
+                border: '1px solid rgba(var(--warning-rgb), 0.3)',
               }}
               onClick={logout}
             >

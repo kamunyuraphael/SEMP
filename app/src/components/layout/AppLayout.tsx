@@ -13,8 +13,19 @@ import { alertService, predictionService } from '../../services/api';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => localStorage.getItem('semp_sidebar_collapsed') === 'true'
+  );
   const [unreadCount, setUnreadCount] = useState(0);
   const [anomalyCount, setAnomalyCount] = useState(0);
+
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('semp_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const fetchCounts = useCallback(async () => {
     try {
@@ -49,6 +60,8 @@ export default function AppLayout() {
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapsed}
         anomalyCount={anomalyCount}
         notificationCount={unreadCount}
       />
@@ -62,7 +75,7 @@ export default function AppLayout() {
         />
       )}
 
-      <div className="main-content">
+      <div className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <Navbar
           onMenuClick={() => setSidebarOpen((s) => !s)}
           notificationCount={unreadCount}

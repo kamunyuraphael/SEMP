@@ -25,9 +25,9 @@ const ALERT_ICON: Record<AlertType, string> = {
 };
 
 const ALERT_COLOR: Record<AlertType, string> = {
-  anomaly: '#862D03',
-  threshold: '#C15A02',
-  info: '#E8A221',
+  anomaly: 'var(--warning)',
+  threshold: 'var(--accent-primary)',
+  info: 'var(--accent-amber)',
 };
 
 export default function Notifications() {
@@ -224,10 +224,10 @@ export default function Notifications() {
                       borderRadius: 8,
                       backgroundColor:
                         alert.type === 'anomaly'
-                          ? 'rgba(134,45,3,0.15)'
+                          ? 'rgba(var(--warning-rgb), 0.15)'
                           : alert.type === 'threshold'
-                          ? 'rgba(193,90,2,0.15)'
-                          : 'rgba(232,162,33,0.15)',
+                          ? 'rgba(var(--accent-primary-rgb), 0.15)'
+                          : 'rgba(var(--accent-amber-rgb), 0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

@@ -240,6 +240,7 @@ export interface ApiResponse<T> {
   data: T;
   count?: number;
   error?: string;
+  dateLabel?: string; // Set by day-scoped endpoints (e.g. category breakdown) to say which calendar day (Africa/Nairobi) the data reflects
 }
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
