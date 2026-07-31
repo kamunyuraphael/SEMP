@@ -72,7 +72,16 @@ export function CategoryPie({ data, size = 180, valueSuffix = ' kWh', centerLabe
   const hovered = hoverIndex !== null ? segments[hoverIndex] : null;
 
   return (
-    <div style={{ width: size, height: size, position: 'relative' }}>
+    <div
+      style={{
+        width: size,
+        height: size,
+        minWidth: size,
+        minHeight: size,
+        position: 'relative',
+        flexShrink: 0,
+      }}
+    >
       <svg viewBox={`0 0 ${size} ${size}`} width="100%" height="100%" role="img" aria-label="Donut chart">
         {segments.map((seg, index) => (
           <path
@@ -90,7 +99,11 @@ export function CategoryPie({ data, size = 180, valueSuffix = ' kWh', centerLabe
       <div
         style={{
           position: 'absolute',
-          inset: `${size * 0.155}px`,
+          left: '50%',
+          top: '50%',
+          width: innerR * 2,
+          height: innerR * 2,
+          transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           background: 'var(--bg-card)',
           display: 'flex',
