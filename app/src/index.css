@@ -892,7 +892,9 @@ input:focus-visible,
 /* ── Auth Pages ─────────────────────────────────────────────── */
 .auth-page {
   min-height: 100vh;
-  background-color: var(--bg-main);
+  background: url(https://res.cloudinary.com/iprdnhzp/image/upload/v1785575883/home-semp_clqakw.jpg) no-repeat center center fixed;
+  background-size: cover;
+  /* Ensures the background image covers the whole screen */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -902,8 +904,15 @@ input:focus-visible,
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background-color: var(--bg-card);
-  border: 1px solid var(--bg-border);
+  background-color: rgba(255, 255, 255, 0.08);
+  /* Switch to a light, highly translucent white for a modern look */
+
+  /* The Fix: Add backdrop-filter and its Safari prefix */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  /* Semi-transparent border defines the glass edge */
   border-radius: var(--radius-lg);
   padding: 2rem;
   box-shadow: var(--shadow-lg);
@@ -925,7 +934,7 @@ input:focus-visible,
 
 .auth-subtitle {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
 }
 
