@@ -19,7 +19,7 @@ import BudgetWidget from '../components/dashboard/BudgetWidget';
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import { useSocket } from '../context/SocketContext';
 import { extractSeverity, timeAgo } from '../utils/anomaly';
-import { CATEGORY_COLORS } from '../utils/categoryColors';
+import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from '../utils/categoryColors';
 import { generateInsights } from '../utils/insights';
 import type {
   Device,
@@ -430,16 +430,49 @@ export default function Dashboard() {
                   size={180}
                   valueSuffix=" kWh"
                 />
-                <div className="w-100">
-                  {pieData.map((entry) => (
-                    <div key={entry.name} className="d-flex justify-content-between align-items-center py-1">
-                      <span className="d-flex align-items-center gap-2 text-capitalize">
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', display: 'inline-block', backgroundColor: entry.fill }} />
-                        {entry.name}
-                      </span>
-                      <strong>{Number(entry.value).toFixed(2)} kWh</strong>
-                    </div>
-                  ))}
+                <div className="w-100 d-flex flex-column gap-3">
+                  {(() => {
+                    const totalKWh = pieData.reduce((sum, p) => sum + p.value, 0) || 1;
+                    return pieData.map((entry) => {
+                      const pct = (entry.value / totalKWh) * 100;
+                      return (
+                        <div key={entry.name}>
+                          <div className="d-flex justify-content-between align-items-center mb-1">
+                            <span className="d-flex align-items-center gap-2">
+                              <i
+                                className={`bi ${CATEGORY_ICONS[entry.name]}`}
+                                style={{ color: entry.fill, fontSize: '0.85rem' }}
+                              />
+                              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                {CATEGORY_LABELS[entry.name] || entry.name}
+                              </span>
+                            </span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                              {pct.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              height: 6,
+                              borderRadius: 4,
+                              backgroundColor: 'var(--bg-surface)',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <div
+                              style={{
+                                height: '100%',
+                                width: `${pct}%`,
+                                backgroundColor: entry.fill,
+                                borderRadius: 4,
+                                transition: 'width 0.3s ease',
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             )}

@@ -27,3 +27,12 @@ export const CATEGORY_LABELS: Record<DeviceCategory, string> = {
   HVAC: 'HVAC',
   computing: 'Computing',
 };
+
+export const CATEGORY_ICONS: Record<DeviceCategory, string> = {
+  kitchen: 'bi-cup-hot-fill',
+  laundry: 'bi-basket3-fill',
+  lighting: 'bi-lightbulb-fill',
+  entertainment: 'bi-tv-fill',
+  HVAC: 'bi-thermometer-half',
+  computing: 'bi-laptop-fill',
+};

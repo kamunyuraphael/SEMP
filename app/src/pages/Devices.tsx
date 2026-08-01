@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { deviceService } from '../services/api';
+import { CATEGORY_ICONS } from '../utils/categoryColors';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import type { Device, DeviceCategory, AddDevicePayload } from '../types/index';
 
@@ -16,10 +17,6 @@ const CATEGORY_OPTIONS: { value: DeviceCategory; label: string; icon: string }[]
   { value: 'HVAC', label: 'HVAC', icon: 'bi-thermometer-half' },
   { value: 'computing', label: 'Computing', icon: 'bi-laptop-fill' },
 ];
-
-const CATEGORY_ICONS: Record<DeviceCategory, string> = Object.fromEntries(
-  CATEGORY_OPTIONS.map((c) => [c.value, c.icon])
-) as Record<DeviceCategory, string>;
 
 export default function Devices() {
   const [devices, setDevices] = useState<Device[]>([]);

@@ -15,8 +15,8 @@
   --accent-primary: #0A5C36;
   --accent-primary-rgb: 10, 92, 54;
   --accent-secondary: #148A52;
-  --accent-amber: #00BFB3;
-  --accent-amber-rgb: 0, 191, 179;
+  --accent-amber: #18A59C;
+  --accent-amber-rgb: 24, 165, 156;
   --warning: #B91C1C;
   --warning-rgb: 185, 28, 28;
   --text-primary: #07120D;
@@ -42,13 +42,13 @@
   --bg-card: #101910;
   --bg-surface: #18261C;
   --bg-border: #203528;
-  --accent-primary: #00C46E;
-  --accent-primary-rgb: 0, 196, 110;
+  --accent-primary: #139A60;
+  --accent-primary-rgb: 19, 154, 96;
   --accent-secondary: #0A7A46;
-  --accent-amber: #00D4C8;
-  --accent-amber-rgb: 0, 212, 200;
-  --warning: #EF4444;
-  --warning-rgb: 239, 68, 68;
+  --accent-amber: #17A197;
+  --accent-amber-rgb: 23, 161, 151;
+  --warning: #DC3838;
+  --warning-rgb: 220, 56, 56;
   --text-primary: #EEF7F1;
   --text-secondary: #A2BEA9;
   --text-muted: #587A63;
@@ -736,7 +736,7 @@ input:focus-visible,
 .stat-card-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding-top: 0.35rem;
