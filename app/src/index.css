@@ -890,29 +890,96 @@ input:focus-visible,
 }
 
 /* ── Auth Pages ─────────────────────────────────────────────── */
-.auth-page {
+.auth-shell {
   min-height: 100vh;
-  background: url(https://res.cloudinary.com/iprdnhzp/image/upload/v1785575883/home-semp_clqakw.jpg) no-repeat center center fixed;
-  background-size: cover;
-  /* Ensures the background image covers the whole screen */
+  display: flex;
+  background-color: var(--bg-main);
+}
+
+.auth-hero {
+  flex: 1 1 46%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 3.5rem;
+  background: var(--accent-secondary);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.auth-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+}
+
+.auth-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1rem;
+}
+
+.auth-hero-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.auth-hero-subtitle {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  margin-bottom: 2rem;
+}
+
+.auth-hero-stat-row {
+  display: flex;
+  gap: 2rem;
+}
+
+.auth-hero-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.auth-hero-stat-label {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-panel {
+  flex: 1 1 54%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
 }
 
+@media (max-width: 900px) {
+  .auth-hero {
+    display: none;
+  }
+  .auth-panel {
+    flex: 1 1 100%;
+  }
+}
+
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background-color: rgba(255, 255, 255, 0.08);
-  /* Switch to a light, highly translucent white for a modern look */
-
-  /* The Fix: Add backdrop-filter and its Safari prefix */
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  /* Semi-transparent border defines the glass edge */
+  background-color: var(--bg-card);
+  border: 1px solid rgba(var(--bg-border-rgb), 0.5);
   border-radius: var(--radius-lg);
   padding: 2rem;
   box-shadow: var(--shadow-lg);
@@ -934,7 +1001,7 @@ input:focus-visible,
 
 .auth-subtitle {
   font-size: 0.875rem;
-  color: var(--text-primary);
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 

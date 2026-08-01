@@ -6,6 +6,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { AuthHero } from '../../components/auth/AuthHero';
 
 export default function Register() {
   const { register } = useAuth();
@@ -63,7 +64,14 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-shell">
+      <AuthHero
+        eyebrow="SEMP"
+        title="Take control of your energy."
+        subtitle="Create an account to start tracking usage, spotting anomalies, and forecasting your next bill."
+      />
+
+      <div className="auth-panel">
       <div className="auth-card">
         <div className="auth-brand">
           {/*<div className="sidebar-brand-icon">
@@ -75,7 +83,7 @@ export default function Register() {
         </div>
 
         <h1 className="auth-title">Create account</h1>
-        <p className="auth-subtitle">Start monitoring your home's energy today.</p>
+        <p className="auth-subtitle">A few details and you're in.</p>
 
         {error && (
           <div className="alert alert-danger py-2 mb-3" role="alert">
@@ -186,6 +194,7 @@ export default function Register() {
             Sign in
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );

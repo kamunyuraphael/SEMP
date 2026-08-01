@@ -7,6 +7,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { AuthHero } from '../../components/auth/AuthHero';
 
 export default function Login() {
   const { login } = useAuth();
@@ -48,7 +49,14 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-shell">
+      <AuthHero
+        eyebrow="SEMP"
+        title="Welcome back."
+        subtitle="Monitor your energy, reduce your footprint. Sign in to see how your home is tracking today."
+      />
+
+      <div className="auth-panel">
       <div className="auth-card">
         {/* Brand */}
         <div className="auth-brand">
@@ -61,7 +69,7 @@ export default function Login() {
         </div>
 
         <h1 className="auth-title">Sign in</h1>
-        <p className="auth-subtitle">Monitor your energy, reduce your footprint.</p>
+        <p className="auth-subtitle">Enter your credentials to access your dashboard.</p>
 
         {error && (
           <div className="alert alert-danger py-2 px-3 mb-3" style={{ fontSize: '0.85rem' }}>
@@ -136,6 +144,7 @@ export default function Login() {
             Register
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );
