@@ -1,0 +1,25 @@
+{
+  "name": "SEMP - Smart Energy Monitoring and Prediction",
+  "short_name": "SEMP",
+  "description": "Monitor household energy usage, spot anomalies, and forecast your next bill.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F0F5F1",
+  "theme_color": "#0A5C36",
+  "icons": [
+    {
+      "src": "/semp.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/semp.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

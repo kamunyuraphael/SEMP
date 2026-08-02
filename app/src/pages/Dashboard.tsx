@@ -17,6 +17,8 @@ import { CategoryPie } from '../components/charts/CategoryPie';
 import ComparisonWidget from '../components/dashboard/ComparisonWidget';
 import BudgetWidget from '../components/dashboard/BudgetWidget';
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
+import OnboardingWelcome from '../components/dashboard/OnboardingWelcome';
+import AnimatedNumber from '../components/ui/AnimatedNumber';
 import { useSocket } from '../context/SocketContext';
 import { extractSeverity, timeAgo } from '../utils/anomaly';
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from '../utils/categoryColors';
@@ -222,6 +224,10 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
+  if (devices.length === 0) {
+    return <OnboardingWelcome />;
+  }
+
   const renderTrend = (pct: number | null, positiveIsGood: boolean, fallback: string) => {
     if (pct === null) return <span className="stat-card-sub">{fallback}</span>;
     const isGood = positiveIsGood ? pct >= 0 : pct <= 0;
@@ -252,7 +258,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="stat-card-value">
-              {currentDrawWatts.toLocaleString()}
+              <AnimatedNumber value={currentDrawWatts} format={(n) => Math.round(n).toLocaleString()} />
               <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}> W</span>
             </div>
             <div className="stat-card-sub">
@@ -273,7 +279,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="stat-card-value">
-              {todayKWh.toFixed(1)}
+              <AnimatedNumber value={todayKWh} format={(n) => n.toFixed(1)} />
               <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}> kWh</span>
             </div>
             <div className="stat-card-sub">
@@ -293,7 +299,9 @@ export default function Dashboard() {
                 <i className="bi bi-cash-stack" />
               </div>
             </div>
-            <div className="stat-card-value">KSh {monthToDateCost.toFixed(0)}</div>
+            <div className="stat-card-value">
+              KSh <AnimatedNumber value={monthToDateCost} format={(n) => Math.round(n).toLocaleString()} />
+            </div>
             <div className="stat-card-sub">
               {renderTrend(monthTrendPct, false, 'No data for last month yet')}
               {monthTrendPct !== null && (
@@ -312,7 +320,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="stat-card-value">
-              {activeDevices}
+              <AnimatedNumber value={activeDevices} format={(n) => Math.round(n).toString()} />
               <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>
                 {' '}/ {totalDevices}
               </span>

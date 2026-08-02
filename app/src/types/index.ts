@@ -211,6 +211,7 @@ export interface AlertEventPayload {
   type: AlertType;
   message: string;
   device?: string;
+  deviceId?: string;
   anomalyDetails?: string;
   timestamp: string;
 }

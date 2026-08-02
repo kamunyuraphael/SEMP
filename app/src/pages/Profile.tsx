@@ -1,8 +1,7 @@
 // pages/Profile.tsx
-// Displays the authenticated user's account details.
-// Pulls from AuthContext so no additional API call is needed
-// for the initial render — calls refreshProfile() on mount
-// to ensure the data is fresh.
+// Account settings, split into tabs (Account / Preferences /
+// Notifications) now that there's enough content here to warrant it —
+// this used to be one long scroll of cards.
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -10,9 +9,19 @@ import { useTheme } from '../context/ThemeContext';
 import { authService, reportService } from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
+type SettingsTab = 'account' | 'preferences' | 'notifications';
+
+const TABS: { value: SettingsTab; label: string; icon: string }[] = [
+  { value: 'account', label: 'Account', icon: 'bi-person-fill' },
+  { value: 'preferences', label: 'Preferences', icon: 'bi-sliders' },
+  { value: 'notifications', label: 'Notifications', icon: 'bi-bell-fill' },
+];
+
 export default function Profile() {
   const { user, isLoading, refreshProfile, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+
+  const [activeTab, setActiveTab] = useState<SettingsTab>('account');
 
   const [showPasswords, setShowPasswords] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -28,7 +37,8 @@ export default function Profile() {
 
   useEffect(() => {
     refreshProfile();
-  }, [refreshProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChangePassword = async () => {
     setPasswordError(null);
@@ -108,304 +118,299 @@ export default function Profile() {
     <div>
       <div className="mb-4">
         <h5 className="mb-0" style={{ color: 'var(--text-primary)' }}>
-          Profile
+          Settings
         </h5>
         <p className="mb-0" style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-          Your account details
+          Manage your account, preferences, and notifications
         </p>
       </div>
 
-      <div className="row g-4">
-        {/* ── Account Card ───────────────────────────────────── */}
-        <div className="col-12 col-lg-6">
-          <div className="chart-card">
-            <div className="d-flex align-items-center gap-4 mb-4">
-              {/* Avatar */}
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  background: 'var(--accent-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  flexShrink: 0,
-                }}
-              >
-                {initials}
-              </div>
-              <div>
+      <div className="d-flex gap-2 mb-4 flex-wrap">
+        {TABS.map((tab) => (
+          <button
+            key={tab.value}
+            type="button"
+            className="btn d-flex align-items-center gap-2"
+            style={{
+              backgroundColor: activeTab === tab.value ? 'var(--accent-primary)' : 'var(--bg-surface)',
+              color: activeTab === tab.value ? '#ffffff' : 'var(--text-primary)',
+              border: '1px solid var(--bg-border)',
+              fontSize: '0.85rem',
+            }}
+            onClick={() => setActiveTab(tab.value)}
+          >
+            <i className={`bi ${tab.icon}`} />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'account' && (
+        <div className="row g-4">
+          <div className="col-12 col-lg-6">
+            <div className="chart-card">
+              <div className="d-flex align-items-center gap-4 mb-4">
                 <div
-                  className="fw-bold"
-                  style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}
-                >
-                  {user.username}
-                </div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                  {user.email}
-                </div>
-                <span
-                  className="badge mt-1"
                   style={{
-                    backgroundColor: 'rgba(var(--accent-primary-rgb), 0.15)',
-                    color: 'var(--accent-primary)',
-                    textTransform: 'capitalize',
+                    width: 72,
+                    height: 72,
+                    borderRadius: '50%',
+                    background: 'var(--accent-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    fontSize: '1.5rem',
+                    fontWeight: 700,
+                    flexShrink: 0,
                   }}
                 >
-                  {user.role}
-                </span>
-              </div>
-            </div>
-
-            <div
-              style={{
-                borderTop: '1px solid var(--bg-border)',
-                paddingTop: '1rem',
-              }}
-            >
-              {[
-                { label: 'Username', value: user.username, icon: 'bi-person-fill' },
-                { label: 'Email', value: user.email, icon: 'bi-envelope-fill' },
-                { label: 'Role', value: user.role, icon: 'bi-shield-fill' },
-                { label: 'Devices', value: `${user.devices.length} registered`, icon: 'bi-cpu-fill' },
-                { label: 'Member since', value: memberSince, icon: 'bi-calendar3' },
-              ].map((row) => (
-                <div
-                  key={row.label}
-                  className="d-flex justify-content-between align-items-center py-2"
-                  style={{ borderBottom: '1px solid var(--bg-border)' }}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <i
-                      className={`bi ${row.icon}`}
-                      style={{ color: 'var(--accent-primary)', fontSize: '0.85rem', width: 16 }}
-                    />
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      {row.label}
-                    </span>
-                  </div>
-                  <span
-                    className="fw-medium text-capitalize"
-                    style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}
-                  >
-                    {row.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Preferences & Actions ───────────────────────────── */}
-        <div className="col-12 col-lg-6">
-          <div className="chart-card mb-4">
-            <div className="chart-title mb-3">Preferences</div>
-
-            {/* Theme toggle */}
-            <div
-              className="d-flex justify-content-between align-items-center py-3"
-              style={{ borderBottom: '1px solid var(--bg-border)' }}
-            >
-              <div className="d-flex align-items-center gap-3">
-                <div className="stat-card-icon amber" style={{ width: 36, height: 36 }}>
-                  <i className={`bi ${isDark ? 'bi-moon-fill' : 'bi-sun-fill'}`} />
+                  {initials}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Appearance
+                  <div className="fw-bold" style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+                    {user.username}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {isDark ? 'Dark mode active' : 'Light mode active'}
-                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{user.email}</div>
+                  <span
+                    className="badge mt-1"
+                    style={{
+                      backgroundColor: 'rgba(var(--accent-primary-rgb), 0.15)',
+                      color: 'var(--accent-primary)',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {user.role}
+                  </span>
                 </div>
               </div>
+
+              <div style={{ borderTop: '1px solid var(--bg-border)', paddingTop: '1rem' }}>
+                {[
+                  { label: 'Username', value: user.username, icon: 'bi-person-fill' },
+                  { label: 'Email', value: user.email, icon: 'bi-envelope-fill' },
+                  { label: 'Role', value: user.role, icon: 'bi-shield-fill' },
+                  { label: 'Devices', value: `${user.devices.length} registered`, icon: 'bi-cpu-fill' },
+                  { label: 'Member since', value: memberSince, icon: 'bi-calendar3' },
+                ].map((row) => (
+                  <div
+                    key={row.label}
+                    className="d-flex justify-content-between align-items-center py-2"
+                    style={{ borderBottom: '1px solid var(--bg-border)' }}
+                  >
+                    <div className="d-flex align-items-center gap-2">
+                      <i className={`bi ${row.icon}`} style={{ color: 'var(--accent-primary)', fontSize: '0.85rem', width: 16 }} />
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{row.label}</span>
+                    </div>
+                    <span className="fw-medium text-capitalize" style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="col-12 col-lg-6">
+            <div className="chart-card mb-4">
+              <div className="chart-title mb-3">Change Password</div>
+
+              {passwordSuccess && (
+                <div className="alert alert-success py-2 mb-3">
+                  <i className="bi bi-check-circle-fill me-2" />
+                  {passwordSuccess}
+                </div>
+              )}
+              {passwordError && (
+                <div className="alert alert-danger py-2 mb-3">
+                  <i className="bi bi-exclamation-circle-fill me-2" />
+                  {passwordError}
+                </div>
+              )}
+
+              <div className="mb-3">
+                <label className="form-label">Current password</label>
+                <input
+                  type={showPasswords ? 'text' : 'password'}
+                  className="form-control"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">New password</label>
+                <input
+                  type={showPasswords ? 'text' : 'password'}
+                  className="form-control"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Confirm new password</label>
+                <input
+                  type={showPasswords ? 'text' : 'password'}
+                  className="form-control"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm"
-                onClick={toggleTheme}
+                className="btn btn-sm border-0 bg-transparent mb-3 p-0 d-flex align-items-center gap-2"
+                style={{ color: 'var(--text-muted)' }}
+                onClick={() => setShowPasswords((v) => !v)}
               >
-                Switch to {isDark ? 'light' : 'dark'}
+                <i className={`bi ${showPasswords ? 'bi-eye-slash' : 'bi-eye'}`} />
+                {showPasswords ? 'Hide' : 'Show'} passwords
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary w-100"
+                onClick={handleChangePassword}
+                disabled={isSavingPassword}
+              >
+                {isSavingPassword ? <span className="spinner-border spinner-border-sm" /> : 'Update Password'}
               </button>
             </div>
 
-            {/* Timezone info */}
-            <div
-              className="d-flex justify-content-between align-items-center py-3"
-              style={{ borderBottom: '1px solid var(--bg-border)' }}
-            >
-              <div className="d-flex align-items-center gap-3">
-                <div className="stat-card-icon orange" style={{ width: 36, height: 36 }}>
-                  <i className="bi bi-globe2" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Timezone
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Africa/Nairobi (EAT, UTC+3)
-                  </div>
-                </div>
+            <div className="chart-card" style={{ border: '1px solid rgba(var(--warning-rgb), 0.3)' }}>
+              <div className="chart-title mb-3" style={{ color: 'var(--warning)' }}>
+                <i className="bi bi-exclamation-triangle-fill me-2" />
+                Account Actions
               </div>
+
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Signing out will end your current session. Your data will remain intact and accessible on your next
+                login.
+              </p>
+
+              <button
+                type="button"
+                className="btn w-100"
+                style={{
+                  backgroundColor: 'rgba(var(--warning-rgb), 0.1)',
+                  color: 'var(--warning)',
+                  border: '1px solid rgba(var(--warning-rgb), 0.3)',
+                }}
+                onClick={logout}
+              >
+                <i className="bi bi-box-arrow-right me-2" />
+                Sign out
+              </button>
             </div>
-
-            {/* Weekly email digest */}
-            <div className="d-flex justify-content-between align-items-center py-3">
-              <div className="d-flex align-items-center gap-3">
-                <div className="stat-card-icon amber" style={{ width: 36, height: 36 }}>
-                  <i className="bi bi-envelope-paper-fill" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Weekly Email Digest
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {(user.weeklyDigestEnabled ?? true) ? 'Sent every Monday morning' : 'Currently off'}
-                  </div>
-                </div>
-              </div>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  checked={user.weeklyDigestEnabled ?? true}
-                  onChange={handleToggleDigest}
-                  disabled={isTogglingDigest}
-                />
-              </div>
-            </div>
-
-            {digestMessage && (
-              <div className={`alert ${digestMessage.isError ? 'alert-danger' : 'alert-success'} py-2 mb-0 mt-2`}>
-                <i className={`bi ${digestMessage.isError ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'} me-2`} />
-                {digestMessage.text}
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary mt-3 w-100"
-              onClick={handleSendDigestNow}
-              disabled={isSendingDigest}
-            >
-              {isSendingDigest ? (
-                <span className="spinner-border spinner-border-sm" />
-              ) : (
-                <>
-                  <i className="bi bi-send me-2" />
-                  Send test digest now
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Change Password */}
-          <div className="chart-card mb-4">
-            <div className="chart-title mb-3">Change Password</div>
-
-            {passwordSuccess && (
-              <div className="alert alert-success py-2 mb-3">
-                <i className="bi bi-check-circle-fill me-2" />
-                {passwordSuccess}
-              </div>
-            )}
-            {passwordError && (
-              <div className="alert alert-danger py-2 mb-3">
-                <i className="bi bi-exclamation-circle-fill me-2" />
-                {passwordError}
-              </div>
-            )}
-
-            <div className="mb-3">
-              <label className="form-label">Current password</label>
-              <input
-                type={showPasswords ? 'text' : 'password'}
-                className="form-control"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">New password</label>
-              <input
-                type={showPasswords ? 'text' : 'password'}
-                className="form-control"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Confirm new password</label>
-              <input
-                type={showPasswords ? 'text' : 'password'}
-                className="form-control"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-
-            <button
-              type="button"
-              className="btn btn-sm border-0 bg-transparent mb-3 p-0 d-flex align-items-center gap-2"
-              style={{ color: 'var(--text-muted)' }}
-              onClick={() => setShowPasswords((v) => !v)}
-            >
-              <i className={`bi ${showPasswords ? 'bi-eye-slash' : 'bi-eye'}`} />
-              {showPasswords ? 'Hide' : 'Show'} passwords
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-primary w-100"
-              onClick={handleChangePassword}
-              disabled={isSavingPassword}
-            >
-              {isSavingPassword ? (
-                <span className="spinner-border spinner-border-sm" />
-              ) : (
-                'Update Password'
-              )}
-            </button>
-          </div>
-
-          {/* Danger Zone */}
-          <div
-            className="chart-card"
-            style={{ border: '1px solid rgba(var(--warning-rgb), 0.3)' }}
-          >
-            <div
-              className="chart-title mb-3"
-              style={{ color: 'var(--warning)' }}
-            >
-              <i className="bi bi-exclamation-triangle-fill me-2" />
-              Account Actions
-            </div>
-
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Signing out will end your current session. Your data will remain
-              intact and accessible on your next login.
-            </p>
-
-            <button
-              type="button"
-              className="btn w-100"
-              style={{
-                backgroundColor: 'rgba(var(--warning-rgb), 0.1)',
-                color: 'var(--warning)',
-                border: '1px solid rgba(var(--warning-rgb), 0.3)',
-              }}
-              onClick={logout}
-            >
-              <i className="bi bi-box-arrow-right me-2" />
-              Sign out
-            </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'preferences' && (
+        <div className="row g-4">
+          <div className="col-12 col-lg-6">
+            <div className="chart-card">
+              <div className="chart-title mb-3">Appearance & Locale</div>
+
+              <div
+                className="d-flex justify-content-between align-items-center py-3"
+                style={{ borderBottom: '1px solid var(--bg-border)' }}
+              >
+                <div className="d-flex align-items-center gap-3">
+                  <div className="stat-card-icon amber" style={{ width: 36, height: 36 }}>
+                    <i className={`bi ${isDark ? 'bi-moon-fill' : 'bi-sun-fill'}`} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Appearance
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {isDark ? 'Dark mode active' : 'Light mode active'}
+                    </div>
+                  </div>
+                </div>
+                <button type="button" className="btn btn-outline-primary btn-sm" onClick={toggleTheme}>
+                  Switch to {isDark ? 'light' : 'dark'}
+                </button>
+              </div>
+
+              <div className="d-flex justify-content-between align-items-center py-3">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="stat-card-icon orange" style={{ width: 36, height: 36 }}>
+                    <i className="bi bi-globe2" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Timezone
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      Africa/Nairobi (EAT, UTC+3)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'notifications' && (
+        <div className="row g-4">
+          <div className="col-12 col-lg-6">
+            <div className="chart-card">
+              <div className="chart-title mb-3">Weekly Email Digest</div>
+
+              <div className="d-flex justify-content-between align-items-center py-3">
+                <div className="d-flex align-items-center gap-3">
+                  <div className="stat-card-icon amber" style={{ width: 36, height: 36 }}>
+                    <i className="bi bi-envelope-paper-fill" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Weekly Email Digest
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {(user.weeklyDigestEnabled ?? true) ? 'Sent every Monday morning' : 'Currently off'}
+                    </div>
+                  </div>
+                </div>
+                <div className="form-check form-switch">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    checked={user.weeklyDigestEnabled ?? true}
+                    onChange={handleToggleDigest}
+                    disabled={isTogglingDigest}
+                  />
+                </div>
+              </div>
+
+              {digestMessage && (
+                <div className={`alert ${digestMessage.isError ? 'alert-danger' : 'alert-success'} py-2 mb-0 mt-2`}>
+                  <i className={`bi ${digestMessage.isError ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'} me-2`} />
+                  {digestMessage.text}
+                </div>
+              )}
+
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary mt-3 w-100"
+                onClick={handleSendDigestNow}
+                disabled={isSendingDigest}
+              >
+                {isSendingDigest ? (
+                  <span className="spinner-border spinner-border-sm" />
+                ) : (
+                  <>
+                    <i className="bi bi-send me-2" />
+                    Send test digest now
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

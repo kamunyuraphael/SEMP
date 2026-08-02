@@ -8,6 +8,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { AuthHero } from '../../components/auth/AuthHero';
+import InstallPrompt from '../../components/ui/InstallPrompt';
 
 export default function Login() {
   const { login } = useAuth();
@@ -57,6 +58,8 @@ export default function Login() {
       />
 
       <div className="auth-panel">
+      <div style={{ width: '100%', maxWidth: 420 }}>
+      <InstallPrompt />
       <div className="auth-card">
         {/* Brand */}
         <div className="auth-brand">
@@ -144,6 +147,7 @@ export default function Login() {
             Register
           </Link>
         </p>
+      </div>
       </div>
       </div>
     </div>

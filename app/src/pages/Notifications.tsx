@@ -3,10 +3,10 @@
 // Shows all alert types (anomaly, threshold, info) with read/unread state.
 
 import { useState, useEffect, useCallback } from 'react';
-import { alertService } from '../services/api';
+import { alertService, deviceService } from '../services/api';
 import { useSocket } from '../context/SocketContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import type { Alert, AlertType } from '../types/index';
+import type { Alert, AlertType, Device } from '../types/index';
 
 type AlertFilter = AlertType | 'all' | 'unread';
 
@@ -39,6 +39,8 @@ export default function Notifications() {
   const [error, setError] = useState<string | null>(null);
   const [markingId, setMarkingId] = useState<string | null>(null);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [togglingAlertId, setTogglingAlertId] = useState<string | null>(null);
+  const [toggledDeviceIds, setToggledDeviceIds] = useState<Set<string>>(new Set());
 
   const fetchAlerts = useCallback(async () => {
     setIsLoading(true);
@@ -81,6 +83,29 @@ export default function Notifications() {
       setError(err?.response?.data?.error || 'Failed to mark all as read.');
     } finally {
       setIsMarkingAll(false);
+    }
+  };
+
+  // Populated device info, when the server sent one — alert.device can
+  // be a bare ObjectId string for live socket alerts, or a populated
+  // Device object for alerts fetched via getAlerts(). Only the latter
+  // has enough info (status) to safely offer a "turn off" action.
+  const getAlertDevice = (alert: Alert): Device | null =>
+    alert.device && typeof alert.device === 'object' ? alert.device : null;
+
+  const handleTurnOffDevice = async (alert: Alert, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const device = getAlertDevice(alert);
+    if (!device) return;
+
+    setTogglingAlertId(alert._id);
+    try {
+      await deviceService.updateDeviceStatus(device._id, 'inactive');
+      setToggledDeviceIds((prev) => new Set(prev).add(device._id));
+    } catch (err: any) {
+      setError(err?.response?.data?.error || `Failed to turn off ${device.name}.`);
+    } finally {
+      setTogglingAlertId(null);
     }
   };
 
@@ -264,7 +289,7 @@ export default function Notifications() {
                       )}
                     </div>
                     <div
-                      className="d-flex gap-3 mt-1"
+                      className="d-flex align-items-center gap-3 mt-1"
                       style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}
                     >
                       <span>
@@ -276,6 +301,46 @@ export default function Notifications() {
                       </span>
                       <span className="text-capitalize">{alert.type}</span>
                     </div>
+
+                    {alert.type === 'anomaly' &&
+                      (() => {
+                        const device = getAlertDevice(alert);
+                        if (!device) return null;
+                        const alreadyOff = device.status === 'inactive' || toggledDeviceIds.has(device._id);
+                        return (
+                          <div className="mt-2">
+                            {alreadyOff ? (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
+                                <i className="bi bi-check-circle-fill me-1" />
+                                {device.name} turned off
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="btn btn-sm"
+                                style={{
+                                  backgroundColor: 'rgba(var(--warning-rgb), 0.12)',
+                                  color: 'var(--warning)',
+                                  border: '1px solid rgba(var(--warning-rgb), 0.3)',
+                                  fontSize: '0.75rem',
+                                  padding: '2px 10px',
+                                }}
+                                onClick={(e) => handleTurnOffDevice(alert, e)}
+                                disabled={togglingAlertId === alert._id}
+                              >
+                                {togglingAlertId === alert._id ? (
+                                  <span className="spinner-border spinner-border-sm" style={{ width: 10, height: 10 }} />
+                                ) : (
+                                  <>
+                                    <i className="bi bi-power me-1" />
+                                    Turn off {device.name}
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })()}
                   </div>
                 </div>
               ))}

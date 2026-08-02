@@ -3,8 +3,9 @@
 // matching the Figma reference popup. Mounted once at the AppLayout level
 // so it appears above every page, not per-route.
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSocket } from '../../context/SocketContext';
+import { deviceService } from '../../services/api';
 import type { AlertEventPayload, AlertType } from '../../types/index';
 
 const AUTO_DISMISS_MS = 8000;
@@ -40,6 +41,9 @@ function ToastItem({
   index: number;
   onDismiss: (index: number) => void;
 }) {
+  const [isToggling, setIsToggling] = useState(false);
+  const [turnedOff, setTurnedOff] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => onDismiss(index), AUTO_DISMISS_MS);
     return () => clearTimeout(timer);
@@ -47,6 +51,20 @@ function ToastItem({
   }, [index]);
 
   const meta = TYPE_META[alert.type] || TYPE_META.info;
+
+  const handleTurnOff = async () => {
+    if (!alert.deviceId) return;
+    setIsToggling(true);
+    try {
+      await deviceService.updateDeviceStatus(alert.deviceId, 'inactive');
+      setTurnedOff(true);
+    } catch {
+      // Non-critical — the toast auto-dismisses either way; the
+      // device can still be turned off from Notifications/Devices.
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   return (
     <div
@@ -85,6 +103,40 @@ function ToastItem({
         <p className="mb-0 mt-1" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
           {alert.message}
         </p>
+
+        {alert.type === 'anomaly' && alert.deviceId && (
+          <div className="mt-2">
+            {turnedOff ? (
+              <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)' }}>
+                <i className="bi bi-check-circle-fill me-1" />
+                Turned off
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: 'rgba(var(--warning-rgb), 0.12)',
+                  color: 'var(--warning)',
+                  border: '1px solid rgba(var(--warning-rgb), 0.3)',
+                  fontSize: '0.72rem',
+                  padding: '2px 10px',
+                }}
+                onClick={handleTurnOff}
+                disabled={isToggling}
+              >
+                {isToggling ? (
+                  <span className="spinner-border spinner-border-sm" style={{ width: 10, height: 10 }} />
+                ) : (
+                  <>
+                    <i className="bi bi-power me-1" />
+                    Turn off{alert.device ? ` ${alert.device}` : ' device'}
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
