@@ -7,6 +7,7 @@
 
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { DashboardPreview } from '../components/landing/DashboardPreview';
 
 const FEATURES = [
   {
@@ -67,25 +68,13 @@ export default function Landing() {
         >
           <circle cx="1050" cy="80" r="220" fill="rgba(255,255,255,0.05)" />
           <circle cx="120" cy="420" r="160" fill="rgba(255,255,255,0.04)" />
-          <g fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M 830 300 L 975 190 L 1120 300" />
-            <path d="M 860 300 L 860 460 L 1090 460 L 1090 300" />
-            <path d="M 945 460 L 945 375 L 1005 375 L 1005 460" />
-            <rect x="900" y="330" width="45" height="45" rx="2" />
-            <path d="M 1040 260 L 1040 220 L 1065 220 L 1065 285" />
-          </g>
-          <path
-            d="M 700 400 L 830 400 L 870 350 L 905 440 L 940 320 L 980 400 L 1200 400"
-            fill="none"
-            stroke="rgba(255,255,255,0.35)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
         </svg>
 
-        <div className="position-relative px-4 py-5" style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ maxWidth: 560 }}>
+        <div
+          className="position-relative px-4 py-5 d-flex flex-column flex-lg-row align-items-lg-center gap-4"
+          style={{ maxWidth: 1100, margin: '0 auto' }}
+        >
+          <div style={{ maxWidth: 560, flex: 1 }}>
             <h1 className="fw-bold mb-3" style={{ fontSize: '2.75rem', lineHeight: 1.1 }}>
               Know where your power goes.
             </h1>
@@ -101,6 +90,9 @@ export default function Landing() {
                 Sign in
               </Link>
             </div>
+          </div>
+          <div className="d-flex justify-content-center justify-content-lg-end" style={{ flex: 1, minWidth: 0 }}>
+            <DashboardPreview />
           </div>
         </div>
       </div>
