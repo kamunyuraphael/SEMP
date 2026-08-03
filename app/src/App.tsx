@@ -3,12 +3,13 @@
 // the full React Router v6 route tree.
 //
 // Route structure:
+//   /               — public landing page
 //   /login          — public
 //   /register       — public
-//   /               — redirects to /dashboard
 //   /* (protected)  — requires auth, renders inside AppLayout
 //      /dashboard
 //      /devices
+//      /devices/:id
 //      /telemetry
 //      /predictions
 //      /anomalies
@@ -24,8 +25,10 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
+import DeviceDetail from './pages/DeviceDetail';
 import Telemetry from './pages/Telemetry';
 import Predictions from './pages/Predictions';
 import Anomalies from './pages/Anomalies';
@@ -48,14 +51,15 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* ── Root redirect ──────────────────────────── */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              {/* ── Root: public landing page ──────────────── */}
+              <Route path="/" element={<Landing />} />
 
               {/* ── Protected routes ───────────────────────── */}
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/devices" element={<Devices />} />
+                  <Route path="/devices/:id" element={<DeviceDetail />} />
                   <Route path="/telemetry" element={<Telemetry />} />
                   <Route path="/predictions" element={<Predictions />} />
                   <Route path="/anomalies" element={<Anomalies />} />

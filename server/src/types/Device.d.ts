@@ -8,10 +8,6 @@ export interface IDevice {
     location?: string;
     ratedWattage?: number;
     owner: Types.ObjectId; // User ID
-    consumptionLogs: {
-        date: Date;
-        kWh: number;
-    }[];
     createdAt?: Date;
     updatedAt?: Date;
 }

@@ -4,8 +4,9 @@
 // with the rest of the SEMP design system.
 
 import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { deviceService } from '../services/api';
-import { CATEGORY_ICONS } from '../utils/categoryColors';
+import { CATEGORY_ICONS, CATEGORY_LABELS } from '../utils/categoryColors';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import type { Device, DeviceCategory, AddDevicePayload } from '../types/index';
 
@@ -34,6 +35,7 @@ export default function Devices() {
   const [deleteTarget, setDeleteTarget] = useState<Device | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [groupBy, setGroupBy] = useState<'room' | 'category'>('room');
 
   const fetchDevices = useCallback(async () => {
     try {
@@ -126,8 +128,99 @@ export default function Devices() {
     }
   };
 
-  const totalLifetimeKWh = (device: Device): number =>
-    device.consumptionLogs.reduce((sum, log) => sum + log.kWh, 0);
+  const totalLifetimeKWh = (device: Device): number => device.lifetimeKWh ?? 0;
+
+  // Group devices by room (device.location) or category, whichever the
+  // toggle is set to. Devices with no location set fall into
+  // "Unassigned" rather than disappearing from the room view.
+  const groupedDevices: [string, Device[]][] = (() => {
+    const groups = new Map<string, Device[]>();
+    for (const device of devices) {
+      const key =
+        groupBy === 'room'
+          ? device.location?.trim() || 'Unassigned'
+          : CATEGORY_LABELS[device.category] || device.category;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(device);
+    }
+    return Array.from(groups.entries()).sort(([a], [b]) => {
+      if (a === 'Unassigned') return 1;
+      if (b === 'Unassigned') return -1;
+      return a.localeCompare(b);
+    });
+  })();
+
+  const renderDeviceCard = (device: Device) => (
+    <div className="stat-card h-100 d-flex flex-column">
+      <div className="d-flex justify-content-between align-items-start mb-2">
+        <div className="stat-card-icon orange">
+          <i className={`bi ${CATEGORY_ICONS[device.category]}`} />
+        </div>
+        <span className={`device-status ${device.status}`}>
+          <span className="device-status-dot" />
+          {device.status}
+        </span>
+      </div>
+
+      <Link
+        to={`/devices/${device._id}`}
+        className="fw-semibold mb-1 d-block"
+        style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
+      >
+        {device.name}
+        <i className="bi bi-chevron-right ms-1" style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }} />
+      </Link>
+      {device.location && (
+        <div className="mb-2" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          {device.location}
+        </div>
+      )}
+
+      <div className="d-flex justify-content-between align-items-center mb-3" style={{ fontSize: '0.8rem' }}>
+        <span className="text-capitalize" style={{ color: 'var(--text-muted)' }}>
+          {device.category}
+        </span>
+        {typeof device.ratedWattage === 'number' && (
+          <span className="fw-semibold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
+            {device.ratedWattage.toLocaleString()} W
+          </span>
+        )}
+      </div>
+
+      <div className="d-flex justify-content-between mb-3" style={{ fontSize: '0.8rem' }}>
+        <span style={{ color: 'var(--text-muted)' }}>Lifetime usage</span>
+        <span className="fw-semibold" style={{ color: 'var(--text-primary)' }}>
+          {totalLifetimeKWh(device).toFixed(2)} kWh
+        </span>
+      </div>
+
+      <div className="mt-auto d-flex gap-2">
+        <button
+          type="button"
+          className={`btn btn-sm flex-grow-1 ${device.status === 'active' ? 'btn-outline-primary' : 'btn-primary'}`}
+          onClick={() => handleToggleStatus(device)}
+          disabled={togglingId === device._id}
+        >
+          {togglingId === device._id ? (
+            <span className="spinner-border spinner-border-sm" />
+          ) : device.status === 'active' ? (
+            'Deactivate'
+          ) : (
+            'Activate'
+          )}
+        </button>
+        <button
+          type="button"
+          className="btn btn-sm border-0"
+          style={{ color: 'var(--warning)' }}
+          onClick={() => setDeleteTarget(device)}
+          aria-label={`Delete ${device.name}`}
+        >
+          <i className="bi bi-trash-fill" />
+        </button>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return <LoadingSpinner fullPage label="Loading devices..." />;
@@ -180,82 +273,49 @@ export default function Devices() {
           </div>
         </div>
       ) : (
-        <div className="row g-3">
-          {devices.map((device) => (
-            <div key={device._id} className="col-12 col-sm-6 col-lg-4">
-              <div className="stat-card h-100 d-flex flex-column">
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div className="stat-card-icon orange">
-                    <i className={`bi ${CATEGORY_ICONS[device.category]}`} />
+        <>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Group by</span>
+            <div className="btn-group btn-group-sm" role="group">
+              <button
+                type="button"
+                className={`btn ${groupBy === 'room' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => setGroupBy('room')}
+              >
+                Room
+              </button>
+              <button
+                type="button"
+                className={`btn ${groupBy === 'category' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => setGroupBy('category')}
+              >
+                Category
+              </button>
+            </div>
+          </div>
+
+          {groupedDevices.map(([groupLabel, groupDevices]) => (
+            <div key={groupLabel} className="mb-4">
+              <div
+                className="d-flex align-items-center gap-2 mb-2"
+                style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+              >
+                <i className={`bi ${groupBy === 'room' ? 'bi-door-open-fill' : 'bi-tag-fill'}`} />
+                {groupLabel}
+                <span style={{ color: 'var(--text-muted)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
+                  ({groupDevices.length})
+                </span>
+              </div>
+              <div className="row g-3">
+                {groupDevices.map((device) => (
+                  <div key={device._id} className="col-12 col-sm-6 col-lg-4">
+                    {renderDeviceCard(device)}
                   </div>
-                  <span className={`device-status ${device.status}`}>
-                    <span className="device-status-dot" />
-                    {device.status}
-                  </span>
-                </div>
-
-                <div className="fw-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
-                  {device.name}
-                </div>
-                {device.location && (
-                  <div className="mb-2" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {device.location}
-                  </div>
-                )}
-
-                <div
-                  className="d-flex justify-content-between align-items-center mb-3"
-                  style={{ fontSize: '0.8rem' }}
-                >
-                  <span className="text-capitalize" style={{ color: 'var(--text-muted)' }}>
-                    {device.category}
-                  </span>
-                  {typeof device.ratedWattage === 'number' && (
-                    <span className="fw-semibold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
-                      {device.ratedWattage.toLocaleString()} W
-                    </span>
-                  )}
-                </div>
-
-                <div
-                  className="d-flex justify-content-between mb-3"
-                  style={{ fontSize: '0.8rem' }}
-                >
-                  <span style={{ color: 'var(--text-muted)' }}>Lifetime usage</span>
-                  <span className="fw-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {totalLifetimeKWh(device).toFixed(2)} kWh
-                  </span>
-                </div>
-
-                <div className="mt-auto d-flex gap-2">
-                  <button
-                    type="button"
-                    className={`btn btn-sm flex-grow-1 ${device.status === 'active' ? 'btn-outline-primary' : 'btn-primary'}`}
-                    onClick={() => handleToggleStatus(device)}
-                    disabled={togglingId === device._id}
-                  >
-                    {togglingId === device._id ? (
-                      <span className="spinner-border spinner-border-sm" />
-                    ) : device.status === 'active' ? (
-                      'Deactivate'
-                    ) : (
-                      'Activate'
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm border-0"
-                    style={{ color: 'var(--warning)' }}
-                    onClick={() => setDeleteTarget(device)}
-                    aria-label={`Delete ${device.name}`}
-                  >
-                    <i className="bi bi-trash-fill" />
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
           ))}
-        </div>
+        </>
       )}
 
       {showAddModal && (

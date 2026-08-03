@@ -99,7 +99,6 @@ async function seed() {
       location: d.location,
       ratedWattage: d.ratedWattage,
       owner: userId,
-      consumptionLogs: [],
     }))
   );
   logger.info(`Created ${devices.length} devices`);

@@ -402,6 +402,10 @@ input:focus-visible,
   width: calc(100% - 72px);
 }
 
+.main-content.sidebar-collapsed .top-navbar {
+  left: 72px;
+}
+
 .page-wrapper {
   padding: 1.5rem;
   padding-top: calc(var(--navbar-height) + 1.5rem);
@@ -1003,6 +1007,43 @@ input:focus-visible,
   font-size: 0.875rem;
   color: var(--text-muted);
   margin-bottom: 1.5rem;
+}
+
+.animated-trace {
+  stroke-dasharray: 8, 32;
+  animation: pulse-flow 2s linear infinite;
+}
+
+.pulsing-node {
+  animation: node-pulse 3s ease-in-out infinite;
+}
+
+.node-delay-1 {
+  animation-delay: 0.5s;
+}
+
+.node-delay-2 {
+  animation-delay: 1.2s;
+}
+
+@keyframes pulse-flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+@keyframes node-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
 }
 
 /* ── Loading Spinner ────────────────────────────────────────── */

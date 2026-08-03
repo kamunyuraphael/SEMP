@@ -8,7 +8,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 // Register the service worker — required by most browsers for the
 // "install app" (beforeinstallprompt) prompt to fire at all. See
 // public/sw.js for what it does (and deliberately doesn't do).
-if ('serviceWorker' in navigator) {
+// Skipped in dev: a registered SW intercepting Vite's dev-server
+// requests/HMR is a common source of confusing "Failed to fetch"
+// errors that have nothing to do with app code.
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
       // Non-critical — the app works fine without it, install prompt

@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { Device } from "../models/Devices.js";
 import { User } from "../models/User.js";
+import { Telemetry } from "../models/Telemetry.js";
 import type { IDevice } from "../types/Device.d.js";
 
 interface AuthRequest extends Request {
@@ -100,7 +101,24 @@ export const getDevices = async (req: AuthRequest, res: Response, next: NextFunc
     }
 
     const devices = await Device.find({ owner: new Types.ObjectId(userId) }).lean();
-    res.status(200).json({ success: true, data: devices });
+
+    // Lifetime usage isn't stored on the Device doc — it lives in the Telemetry
+    // collection, same as DeviceDetail's chart data. Aggregate the true,
+    // uncapped total per device here so list and detail views agree.
+    const totals = await Telemetry.aggregate([
+      { $match: { user: new Types.ObjectId(userId) } },
+      { $group: { _id: "$device", lifetimeKWh: { $sum: "$kWh" } } },
+    ]);
+    const totalsByDevice = new Map(
+      totals.map((t) => [t._id.toString(), t.lifetimeKWh])
+    );
+
+    const devicesWithUsage = devices.map((device) => ({
+      ...device,
+      lifetimeKWh: totalsByDevice.get(device._id.toString()) ?? 0,
+    }));
+
+    res.status(200).json({ success: true, data: devicesWithUsage });
   } catch (error) {
     next(error);
   }

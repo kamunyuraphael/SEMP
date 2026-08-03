@@ -9,7 +9,7 @@ const STEPS = [
   {
     icon: 'bi-plus-circle-fill',
     title: 'Add a device',
-    description: 'Tell SEMP what you want to track, a fridge, AC unit, lights, whatever draws power.',
+    description: 'Tell SEMP what you want to track - a fridge, AC unit, lights, whatever draws power.',
   },
   {
     icon: 'bi-graph-up',
