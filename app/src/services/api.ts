@@ -130,8 +130,10 @@ export const deviceService = {
 // ─────────────────────────────────────────────────────────────
 
 export const telemetryService = {
-  getTelemetry: async (interval?: TelemetryInterval): Promise<ApiResponse<TelemetryRecord[]>> => {
-    const params = interval ? { interval } : {};
+  getTelemetry: async (interval?: TelemetryInterval, device?: string): Promise<ApiResponse<TelemetryRecord[]>> => {
+    const params: Record<string, string> = {};
+    if (interval) params.interval = interval;
+    if (device) params.device = device;
     const { data } = await api.get<ApiResponse<TelemetryRecord[]>>('/telemetry', { params });
     return data;
   },

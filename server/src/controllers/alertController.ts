@@ -17,7 +17,7 @@ export const getAlerts = async (req: AuthRequest, res: Response, next: NextFunct
 
     const alerts = await Alert.find({ user: new Types.ObjectId(userId) })
       .sort({ timestamp: -1 })
-      .populate('device', 'name category')
+      .populate('device', 'name category status')
       .lean();
     res.status(200).json({ success: true, data: alerts });
   } catch (error) {

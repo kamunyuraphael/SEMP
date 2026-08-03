@@ -28,10 +28,13 @@ export const getTelemetry = async (
 
     const interval =
       typeof req.query.interval === "string" ? req.query.interval : undefined;
+    const deviceId =
+      typeof req.query.device === "string" ? req.query.device : undefined;
 
     const filter = {
       user: new Types.ObjectId(userId),
       ...(interval ? { interval: interval as ITelemetryData["interval"] } : {}),
+      ...(deviceId ? { device: new Types.ObjectId(deviceId) } : {}),
     };
 
     const telemetry = await Telemetry.find(filter)

@@ -42,6 +42,7 @@ export const pushAlert = async (payload: AlertPayload): Promise<void> => {
       message: payload.message,
       timestamp: new Date(),
       ...(deviceLabel ? { device: deviceLabel } : {}),
+      ...(payload.device ? { deviceId: payload.device } : {}),
     };
 
     // Emit strictly to the authenticated User's room

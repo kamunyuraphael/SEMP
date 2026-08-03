@@ -45,6 +45,7 @@ export const telemetrySchema = z.object({
 export const telemetryQuerySchema = z.object({
   interval: z.enum(['raw', 'daily', 'weekly', 'monthly']).optional(),
   date: z.string().optional(),
+  device: objectIdSchema.optional(),
 });
 
 export const telemetrySummaryQuerySchema = z.object({
