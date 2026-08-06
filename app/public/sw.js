@@ -16,5 +16,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
+  // Never intercept navigations (loading/refreshing a page) — this SW
+  // does no caching, so there's nothing useful to do here, and
+  // wrapping every navigation in an extra fetch() only adds a way for
+  // a transient network blip to turn into a hard "network error" page
+  // instead of the browser's own (more resilient) request handling.
+  if (event.request.mode === 'navigate') return;
+
+  event.respondWith(
+    fetch(event.request).catch(() => fetch(event.request))
+  );
 });

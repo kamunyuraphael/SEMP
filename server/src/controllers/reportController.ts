@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { User } from "../models/User.js";
 import { sendWeeklyDigest } from "../services/reportService.js";
+import { isMailConfigured } from "../utils/mailer.js";
 
 interface AuthRequest extends Request {
   user?: { id: string };
@@ -29,10 +30,18 @@ export const sendDigestNow = async (req: AuthRequest, res: Response, next: NextF
     const sent = await sendWeeklyDigest(user);
 
     if (!sent) {
-      return res.status(503).json({
-        success: false,
-        error: "Email is not configured on the server yet (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS), so nothing was sent.",
-      });
+      // sendWeeklyDigest -> sendMail collapses "not configured" and
+      // "configured but the actual send failed" into the same boolean,
+      // by design (so the scheduler can skip quietly when nothing's set
+      // up yet). Check config directly here so the user sees the right
+      // message instead of "not configured" when SMTP genuinely is set
+      // but the send itself errored (bad creds, wrong port, host
+      // unreachable, etc.) — check the server logs for the specific
+      // nodemailer error in that case, logged by mailer.ts's sendMail.
+      const error = isMailConfigured()
+        ? "SMTP is configured but sending failed. Check the server logs for the specific error (auth, connection, or TLS/port issue)."
+        : "Email is not configured on the server yet (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS), so nothing was sent.";
+      return res.status(503).json({ success: false, error });
     }
 
     res.status(200).json({ success: true, message: `Digest sent to ${user.email}` });

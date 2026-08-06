@@ -59,33 +59,72 @@ export const exportTelemetry = async (
     }
 
     const format = (req.query.format as ExportFormat) || "json";
-    const interval = typeof req.query.interval === "string"
-      ? req.query.interval
-      : undefined;
+    const interval = typeof req.query.interval === "string" ? req.query.interval : "raw";
     const from = typeof req.query.from === "string" ? req.query.from : undefined;
     const to = typeof req.query.to === "string" ? req.query.to : undefined;
+    const dateFilter = buildDateFilter(from, to);
 
-    const filter: Record<string, unknown> = {
-      user: new Types.ObjectId(userId),
-      timestamp: buildDateFilter(from, to),
-      ...(interval ? { interval } : {}),
-    };
+    let rows: Record<string, unknown>[];
 
-    const records = await Telemetry.find(filter)
-      .sort({ timestamp: -1 })
-      .limit(10000)
-      .populate("device", "name category")
-      .lean();
+    if (interval === "raw") {
+      const records = await Telemetry.find({
+        user: new Types.ObjectId(userId),
+        timestamp: dateFilter,
+      })
+        .sort({ timestamp: -1 })
+        .limit(10000)
+        .populate("device", "name category")
+        .lean();
 
-    // Flatten each record into a plain row object
-    const rows = records.map((r) => ({
-      timestamp: r.timestamp?.toISOString() ?? "",
-      device: (r.device as any)?.name ?? r.device?.toString() ?? "",
-      category: (r.device as any)?.category ?? "",
-      watts: r.watts,
-      kWh: r.kWh,
-      interval: r.interval,
-    }));
+      rows = records.map((r) => ({
+        timestamp: r.timestamp?.toISOString() ?? "",
+        device: (r.device as any)?.name ?? r.device?.toString() ?? "",
+        category: (r.device as any)?.category ?? "",
+        watts: r.watts,
+        kWh: r.kWh,
+        interval: r.interval,
+      }));
+    } else {
+      // "daily" / "weekly" / "monthly" aren't stored labels — nothing
+      // ever writes those (the simulator only ever writes "raw"). Bucket
+      // the raw readings into the requested period on the fly instead of
+      // filtering by a tag that no record will ever match. Same root
+      // cause as the getCategoryBreakdown fix — see that function's
+      // comment in telemetryController.ts.
+      const dateFormat = interval === "weekly" ? "%G-W%V" : interval === "monthly" ? "%Y-%m" : "%Y-%m-%d";
+
+      const buckets = await Telemetry.aggregate([
+        { $match: { user: new Types.ObjectId(userId), timestamp: dateFilter } },
+        {
+          $lookup: { from: "devices", localField: "device", foreignField: "_id", as: "deviceInfo" },
+        },
+        { $unwind: "$deviceInfo" },
+        {
+          $group: {
+            _id: {
+              period: { $dateToString: { format: dateFormat, date: "$timestamp" } },
+              device: "$deviceInfo.name",
+              category: "$deviceInfo.category",
+            },
+            kWh: { $sum: "$kWh" },
+            avgWatts: { $avg: "$watts" },
+            readingCount: { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.period": -1 } },
+        { $limit: 10000 },
+      ]);
+
+      rows = buckets.map((b) => ({
+        period: b._id.period,
+        device: b._id.device,
+        category: b._id.category,
+        kWh: Math.round(b.kWh * 1000) / 1000,
+        avgWatts: Math.round(b.avgWatts),
+        readingCount: b.readingCount,
+        interval,
+      }));
+    }
 
     const filename = buildFilename("telemetry", format);
     await sendExport(res, rows, format, filename);

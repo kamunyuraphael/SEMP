@@ -11,7 +11,17 @@
 // is configured.
 
 import nodemailer, { type Transporter } from "nodemailer";
+import type SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
+import dns from "node:dns";
 import logger from "./logger.js";
+
+// Render's outbound network can't route the IPv6 address Node resolves
+// first for hosts like smtp.gmail.com (ENETUNREACH), even though IPv4
+// to the same host works fine. nodemailer doesn't expose a typed way to
+// force IPv4 per-connection, so set it at the Node DNS-resolver level
+// instead — affects this process's lookups generally, which is fine
+// here since nothing in this app depends on IPv6 connectivity.
+dns.setDefaultResultOrder("ipv4first");
 
 export interface DigestAttachment {
   filename: string;
@@ -37,14 +47,20 @@ function getTransporter(): Transporter | null {
     return null;
   }
 
-  transporter = nodemailer.createTransport({
+  const options: SMTPTransport.Options = {
     host: SMTP_HOST,
     port: Number(SMTP_PORT),
     secure: Number(SMTP_PORT) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
+  };
+  transporter = nodemailer.createTransport(options);
 
   return transporter;
+}
+
+export function isMailConfigured(): boolean {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  return Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS);
 }
 
 export const sendMail = async (params: {
