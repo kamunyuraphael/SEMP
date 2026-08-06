@@ -1,4 +1,4 @@
-# SEMP — Smart Energy Monitoring and Prediction
+# SEMP - Smart Energy Monitoring and Prediction
 
 A full-stack home energy monitoring system that tracks power usage device by
 device, flags unusual consumption before it costs you, forecasts your next
