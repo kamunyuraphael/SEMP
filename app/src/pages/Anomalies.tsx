@@ -5,6 +5,7 @@
 // directly from the AnomalyDetector.to_prediction_payloads() output.
 
 import { useState, useEffect, useCallback } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { predictionService } from '../services/api';
 import { useSocket } from '../context/SocketContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -15,6 +16,7 @@ type SeverityFilter = 'all' | 'high' | 'medium' | 'low';
 
 export default function Anomalies() {
   const { liveAlerts, dismissAlert } = useSocket();
+  const { refreshCounts } = useOutletContext<{ refreshCounts: () => void }>();
 
   const [anomalies, setAnomalies] = useState<Prediction[]>([]);
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
@@ -46,6 +48,7 @@ export default function Anomalies() {
     setAnomalies((prev) => prev.map((a) => (a._id === id ? { ...a, resolved: true } : a)));
     try {
       await predictionService.resolveAnomaly(id);
+      refreshCounts();
     } catch (err: any) {
       setAnomalies((prev) => prev.map((a) => (a._id === id ? { ...a, resolved: false } : a)));
       setError(err?.response?.data?.error || 'Failed to resolve anomaly.');
@@ -60,6 +63,7 @@ export default function Anomalies() {
     setAnomalies((prev) => prev.map((a) => ({ ...a, resolved: true })));
     try {
       await predictionService.resolveAllAnomalies();
+      refreshCounts();
     } catch (err: any) {
       setAnomalies(previous);
       setError(err?.response?.data?.error || 'Failed to resolve anomalies.');

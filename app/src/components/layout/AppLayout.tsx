@@ -36,7 +36,7 @@ export default function AppLayout() {
 
       const unread = alertsRes.data.filter((a) => !a.read).length;
       setUnreadCount(unread);
-      setAnomalyCount(predictionsRes.data.length);
+      setAnomalyCount(predictionsRes.data.filter((a) => !a.resolved).length);
     } catch {
       // Silently ignore — badges just won't update this cycle.
       // Individual pages still fetch their own full data and will
