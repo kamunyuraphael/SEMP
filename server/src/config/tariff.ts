@@ -15,7 +15,7 @@
 // of usage and roughly add another ~40-50% on top of the energy charge
 // alone. The energy-charge estimate here is meant for relative budgeting
 // ("am I trending over my usual month?") rather than an exact bill
-// prediction. Revisit these numbers periodically — EPRA revises them.
+// prediction. These numbers needs revisiting periodically - EPRA revises them.
 
 export interface TariffBand {
   label: string;
