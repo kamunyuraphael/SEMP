@@ -72,7 +72,7 @@ export function AuthHero({ eyebrow, title, subtitle }: AuthHeroProps) {
 
       <div className="auth-hero-content">
         <span className="auth-hero-eyebrow">
-          <i className="bi bi-lightning-charge-fill" />
+          {/*<i className="bi bi-lightning-charge-fill" />*/}
           {eyebrow}
         </span>
         <h1 className="auth-hero-title">{title}</h1>

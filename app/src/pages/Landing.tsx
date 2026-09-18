@@ -44,7 +44,7 @@ export default function Landing() {
       {/* Nav */}
       <div className="d-flex align-items-center justify-content-between px-4 py-3" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div className="d-flex align-items-center gap-2">
-          <i className="bi bi-lightning-charge-fill" style={{ color: 'var(--accent-primary)', fontSize: '1.3rem' }} />
+          {/*<i className="bi bi-lightning-charge-fill" style={{ color: 'var(--accent-primary)', fontSize: '1.3rem' }} />*/}
           <span className="fw-bold" style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>SEMP</span>
         </div>
         <div className="d-flex gap-2">
@@ -90,7 +90,7 @@ export default function Landing() {
             </h1>
             <p className="mb-4" style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.85)' }}>
               SEMP monitors your home's energy usage device by device, flags unusual consumption before it
-              costs you, and forecasts your next bill — so you're never guessing.
+              costs you, and forecasts your next bill so you're never guessing.
             </p>
             <Link to="/register" className="btn btn-lg" style={{ backgroundColor: '#ffffff', color: 'var(--accent-secondary)', fontWeight: 600 }}>
               Create free account
@@ -141,13 +141,13 @@ export default function Landing() {
           Ready to see where your power goes?
         </h3>
         <Link to="/register" className="btn btn-primary btn-lg">
-          Get started — it's free
+          Get started
         </Link>
       </div>
 
       {/* Footer */}
       <div className="px-4 py-4 text-center" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-        SEMP — Smart Energy Monitoring and Prediction
+        SEMP - Smart Energy Monitoring and Prediction
       </div>
     </div>
   );

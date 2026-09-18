@@ -101,7 +101,7 @@ export function DashboardPreview() {
       >
         <i className="bi bi-exclamation-triangle-fill" style={{ color: 'var(--warning)', fontSize: '0.85rem' }} />
         <div style={{ flex: 1, fontSize: '0.7rem', color: 'var(--text-primary)', fontWeight: 600 }}>
-          Home Office Desktop — unusual draw
+          Home Office Desktop - unusual draw
         </div>
         <span
           style={{
