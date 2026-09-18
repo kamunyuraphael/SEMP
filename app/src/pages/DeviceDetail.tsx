@@ -109,11 +109,7 @@ export default function DeviceDetail() {
 
   if (!device) return null;
 
-  // Lifetime figure comes from the device record (server-side aggregate
-  // over ALL of its telemetry), not from `telemetry` here — that array
-  // is capped to the last 100 raw readings for the trend chart, so
-  // summing it understates lifetime usage once a device has more history.
-  const totalKWh = device.lifetimeKWh ?? 0;
+  const totalKWh = telemetry.reduce((sum, t) => sum + t.kWh, 0);
   const avgWatts = telemetry.length > 0 ? telemetry.reduce((sum, t) => sum + t.watts, 0) / telemetry.length : 0;
   const peakWatts = telemetry.reduce((max, t) => Math.max(max, t.watts), 0);
 

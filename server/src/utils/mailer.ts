@@ -1,27 +1,28 @@
-// mailer.ts — nodemailer transporter for outbound email (weekly digests,
-// and any future transactional email). Configured entirely via env vars
-// so no SMTP credentials live in source:
+// mailer.ts — outbound email (weekly digests, and any future
+// transactional email) via Resend's HTTP API.
 //
-//   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
+// This replaces an earlier SMTP-based implementation (nodemailer).
+// SMTP was the likely cause of the weekly digest silently failing to
+// deliver in production: Render (like many PaaS hosts) blocks or
+// restricts outbound traffic on the SMTP ports (25/465/587), and its
+// containers are frequently IPv6-only or IPv6-preferred, which several
+// SMTP providers don't handle cleanly. An HTTP API call over 443 sidesteps
+// both problems entirely — it's indistinguishable from any other outbound
+// API request the server already makes (e.g. to MongoDB Atlas).
+//
+// Configured entirely via env vars so no credentials live in source:
+//
+//   RESEND_API_KEY, EMAIL_FROM
 //
 // If these aren't set (e.g. a fresh dev checkout with no mail account
 // wired up yet), sendMail() logs a warning and resolves without
 // throwing — the rest of the app (scheduler, manual "send test digest"
-// button) keeps working, it just won't actually deliver mail until SMTP
-// is configured.
+// button) keeps working, it just won't actually deliver mail until
+// email is configured.
 
-import nodemailer, { type Transporter } from "nodemailer";
-import type SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
-import dns from "node:dns";
 import logger from "./logger.js";
 
-// Render's outbound network can't route the IPv6 address Node resolves
-// first for hosts like smtp.gmail.com (ENETUNREACH), even though IPv4
-// to the same host works fine. nodemailer doesn't expose a typed way to
-// force IPv4 per-connection, so set it at the Node DNS-resolver level
-// instead — affects this process's lookups generally, which is fine
-// here since nothing in this app depends on IPv6 connectivity.
-dns.setDefaultResultOrder("ipv4first");
+const RESEND_API_URL = "https://api.resend.com/emails";
 
 export interface DigestAttachment {
   filename: string;
@@ -29,38 +30,22 @@ export interface DigestAttachment {
   contentType?: string;
 }
 
-let transporter: Transporter | null = null;
 let warnedOnce = false;
 
-function getTransporter(): Transporter | null {
-  if (transporter) return transporter;
-
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
+function isConfigured(): boolean {
+  const { RESEND_API_KEY, EMAIL_FROM } = process.env;
+  if (!RESEND_API_KEY || !EMAIL_FROM) {
     if (!warnedOnce) {
       logger.warn(
-        "Email not configured (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS missing) — " +
-          "weekly digests will be skipped until these are set in .env."
+        "Email not configured (RESEND_API_KEY/EMAIL_FROM missing) — " +
+          "weekly digests will be skipped until these are set in .env. " +
+          "Sign up at https://resend.com for a free API key."
       );
       warnedOnce = true;
     }
-    return null;
+    return false;
   }
-
-  const options: SMTPTransport.Options = {
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: Number(SMTP_PORT) === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  };
-  transporter = nodemailer.createTransport(options);
-
-  return transporter;
-}
-
-export function isMailConfigured(): boolean {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  return Boolean(SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS);
+  return true;
 }
 
 export const sendMail = async (params: {
@@ -69,17 +54,33 @@ export const sendMail = async (params: {
   html: string;
   attachments?: DigestAttachment[];
 }): Promise<boolean> => {
-  const t = getTransporter();
-  if (!t) return false;
+  if (!isConfigured()) return false;
 
   try {
-    await t.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-      attachments: params.attachments,
+    const response = await fetch(RESEND_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+        attachments: params.attachments?.map((a) => ({
+          filename: a.filename,
+          content: a.content.toString("base64"),
+        })),
+      }),
     });
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => "");
+      logger.error(`Failed to send email to ${params.to}: HTTP ${response.status} ${errorBody}`);
+      return false;
+    }
+
     return true;
   } catch (error) {
     logger.error(`Failed to send email to ${params.to}: ${(error as Error).message}`);

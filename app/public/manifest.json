@@ -1,5 +1,5 @@
 {
-  "name": "SEMP - Smart Energy Monitoring and Prediction",
+  "name": "SEMP — Smart Energy Monitoring and Prediction",
   "short_name": "SEMP",
   "description": "Monitor household energy usage, spot anomalies, and forecast your next bill.",
   "start_url": "/dashboard",

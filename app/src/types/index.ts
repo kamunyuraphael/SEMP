@@ -59,6 +59,11 @@ export type DeviceCategory =
 
 export type DeviceStatus = 'active' | 'inactive';
 
+export interface ConsumptionLog {
+  date: string;
+  kWh: number;
+}
+
 export interface Device {
   _id: string;
   name: string;
@@ -67,7 +72,7 @@ export interface Device {
   location?: string;
   ratedWattage?: number;
   owner: string;
-  lifetimeKWh: number;
+  consumptionLogs: ConsumptionLog[];
   createdAt: string;
   updatedAt: string;
 }

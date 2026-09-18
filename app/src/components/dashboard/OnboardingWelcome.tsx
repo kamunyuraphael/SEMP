@@ -9,7 +9,7 @@ const STEPS = [
   {
     icon: 'bi-plus-circle-fill',
     title: 'Add a device',
-    description: 'Tell SEMP what you want to track - a fridge, AC unit, lights, whatever draws power.',
+    description: 'Tell SEMP what you want to track — a fridge, AC unit, lights, whatever draws power.',
   },
   {
     icon: 'bi-graph-up',
@@ -40,7 +40,7 @@ export default function OnboardingWelcome() {
 
       <h4 style={{ color: 'var(--text-primary)', fontWeight: 700 }}>Welcome to SEMP</h4>
       <p className="mx-auto mb-4" style={{ maxWidth: 420, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-        You don't have any devices yet, add your first one to start seeing your energy usage,
+        You don't have any devices yet — add your first one to start seeing your energy usage,
         trends, and forecasts here.
       </p>
 

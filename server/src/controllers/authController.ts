@@ -3,6 +3,8 @@ import type { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import { pushAlert } from "../services/alertServices.js";
+import { RELEASE_NOTES } from "../config/releaseNotes.js";
 
 interface AuthRequest extends Request {
   user?: { id: string };
@@ -13,7 +15,16 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     const { username, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ username, email: email.toLowerCase(), password: hashedPassword });
+    const user = new User({
+      username,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      // A brand-new account shouldn't be greeted with a backlog of
+      // "what's new" notices for features that have simply always
+      // been there for them — only entries added after they sign up
+      // should ever reach them.
+      seenReleaseNoteIds: RELEASE_NOTES.map((n) => n.id),
+    });
     await user.save();
 
     res.status(201).json({ success: true, message: "User registered successfully", data: { id: user._id, username: user.username, email: user.email } });
@@ -42,6 +53,24 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });
+
+    // Deliver any "what's new" entries this user hasn't been notified
+    // about yet, then mark them all seen. Reuses the existing alert
+    // pipeline (persisted Alert doc + live toast if they're connected)
+    // rather than a separate notification mechanism. Best-effort: a
+    // failure here should never block login.
+    try {
+      const unseen = RELEASE_NOTES.filter((n) => !user.seenReleaseNoteIds.includes(n.id));
+      if (unseen.length > 0) {
+        for (const note of unseen) {
+          await pushAlert({ userId: user._id.toString(), type: "info", message: note.message });
+        }
+        user.seenReleaseNoteIds = RELEASE_NOTES.map((n) => n.id);
+        await user.save();
+      }
+    } catch (releaseNoteError) {
+      // Non-critical — login already succeeded above.
+    }
 
     res.status(200).json({ success: true, message: "Login successful", data: { token, userId: user._id } });
   } catch (error) {

@@ -128,7 +128,8 @@ export default function Devices() {
     }
   };
 
-  const totalLifetimeKWh = (device: Device): number => device.lifetimeKWh ?? 0;
+  const totalLifetimeKWh = (device: Device): number =>
+    device.consumptionLogs.reduce((sum, log) => sum + log.kWh, 0);
 
   // Group devices by room (device.location) or category, whichever the
   // toggle is set to. Devices with no location set fall into

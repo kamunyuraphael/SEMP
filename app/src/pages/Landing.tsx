@@ -7,7 +7,6 @@
 
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { DashboardPreview } from '../components/landing/DashboardPreview';
 
 const FEATURES = [
   {
@@ -45,13 +44,12 @@ export default function Landing() {
       {/* Nav */}
       <div className="d-flex align-items-center justify-content-between px-4 py-3" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div className="d-flex align-items-center gap-2">
+          <i className="bi bi-lightning-charge-fill" style={{ color: 'var(--accent-primary)', fontSize: '1.3rem' }} />
           <span className="fw-bold" style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>SEMP</span>
         </div>
-        <div className="d-flex align-items-center gap-3">
-          <Link to="/login" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none' }}>
-            Sign in
-          </Link>
-          <Link to="/register" className="btn btn-sm btn-outline-primary">Get started</Link>
+        <div className="d-flex gap-2">
+          <Link to="/login" className="btn btn-sm btn-outline-primary">Sign in</Link>
+          <Link to="/register" className="btn btn-sm btn-primary">Get started</Link>
         </div>
       </div>
 
@@ -68,31 +66,35 @@ export default function Landing() {
         >
           <circle cx="1050" cy="80" r="220" fill="rgba(255,255,255,0.05)" />
           <circle cx="120" cy="420" r="160" fill="rgba(255,255,255,0.04)" />
+          <g fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M 830 300 L 975 190 L 1120 300" />
+            <path d="M 860 300 L 860 460 L 1090 460 L 1090 300" />
+            <path d="M 945 460 L 945 375 L 1005 375 L 1005 460" />
+            <rect x="900" y="330" width="45" height="45" rx="2" />
+            <path d="M 1040 260 L 1040 220 L 1065 220 L 1065 285" />
+          </g>
+          <path
+            d="M 700 400 L 830 400 L 870 350 L 905 440 L 940 320 L 980 400 L 1200 400"
+            fill="none"
+            stroke="rgba(255,255,255,0.35)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
 
-        <div
-          className="position-relative px-4 py-5 d-flex flex-column flex-lg-row align-items-lg-center gap-4"
-          style={{ maxWidth: 1100, margin: '0 auto' }}
-        >
-          <div style={{ maxWidth: 560, flex: 1 }}>
+        <div className="position-relative px-4 py-5" style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 560 }}>
             <h1 className="fw-bold mb-3" style={{ fontSize: '2.75rem', lineHeight: 1.1 }}>
               Know where your power goes.
             </h1>
             <p className="mb-4" style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.85)' }}>
               SEMP monitors your home's energy usage device by device, flags unusual consumption before it
-              costs you, and forecasts your next bill so you're never guessing.
+              costs you, and forecasts your next bill — so you're never guessing.
             </p>
-            <div className="d-flex gap-3">
-              <Link to="/register" className="btn btn-lg" style={{ backgroundColor: '#ffffff', color: 'var(--accent-secondary)', fontWeight: 600 }}>
-                Create free account
-              </Link>
-              <Link to="/login" className="btn btn-lg btn-outline-light">
-                Sign in
-              </Link>
-            </div>
-          </div>
-          <div className="d-flex justify-content-center justify-content-lg-end" style={{ flex: 1, minWidth: 0 }}>
-            <DashboardPreview />
+            <Link to="/register" className="btn btn-lg" style={{ backgroundColor: '#ffffff', color: 'var(--accent-secondary)', fontWeight: 600 }}>
+              Create free account
+            </Link>
           </div>
         </div>
       </div>
@@ -138,14 +140,14 @@ export default function Landing() {
         <h3 className="mb-3" style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
           Ready to see where your power goes?
         </h3>
-        <Link to="/register" className="btn btn-outline-primary btn-lg">
-          Start monitoring your energy today
+        <Link to="/register" className="btn btn-primary btn-lg">
+          Get started — it's free
         </Link>
       </div>
 
       {/* Footer */}
       <div className="px-4 py-4 text-center" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-        SEMP - Smart Energy Monitoring and Prediction
+        SEMP — Smart Energy Monitoring and Prediction
       </div>
     </div>
   );
