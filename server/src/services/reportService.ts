@@ -26,6 +26,18 @@ export interface WeeklyReportData {
   monthProjectedKES?: number;
 }
 
+export interface MonthlyStatementData {
+  periodStart: Date;
+  periodEnd: Date;
+  categories: { category: string; kWh: number; costKES: number }[];
+  totalKWh: number;
+  totalCostKES: number;
+  tariffBand: string;
+  tariffRateKESPerKWh: number;
+  monthlyBudgetKES?: number;
+  percentOfBudget?: number;
+}
+
 async function buildWeeklyReportData(userId: string, monthlyBudgetKES?: number): Promise<WeeklyReportData> {
   const weekEnd = new Date();
   const weekStart = new Date(weekEnd);
@@ -97,7 +109,66 @@ async function buildWeeklyReportData(userId: string, monthlyBudgetKES?: number):
   return data;
 }
 
-function renderDigestHTML(user: Pick<IUser, "username">, data: WeeklyReportData): string {
+/**
+ * Month-to-date itemized statement — reads more like an actual utility
+ * bill than the weekly summary: a billing period, a per-category cost
+ * breakdown (not just kWh), and the tariff rate actually applied.
+ * Kenya Power's bands apply one rate to a household's *entire* monthly
+ * usage rather than stepping per unit, so the same resolved band's rate
+ * is used to cost out every category rather than resolving a separate
+ * band per category.
+ */
+async function buildMonthlyStatementData(userId: string, monthlyBudgetKES?: number): Promise<MonthlyStatementData> {
+  const now = new Date();
+  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const userObjectId = new Types.ObjectId(userId);
+
+  const categoryRows = await Telemetry.aggregate([
+    { $match: { user: userObjectId, timestamp: { $gte: periodStart, $lte: now } } },
+    {
+      $lookup: {
+        from: "devices",
+        localField: "device",
+        foreignField: "_id",
+        as: "deviceInfo",
+      },
+    },
+    { $unwind: "$deviceInfo" },
+    { $group: { _id: "$deviceInfo.category", kWh: { $sum: "$kWh" } } },
+    { $sort: { kWh: -1 } },
+  ]);
+
+  const totalKWh = categoryRows.reduce((sum, r) => sum + (r.kWh as number), 0);
+  const band = resolveTariffBand(totalKWh);
+
+  const categories = categoryRows.map((row) => {
+    const kWh = row.kWh as number;
+    return {
+      category: CATEGORY_LABELS[row._id as string] || row._id,
+      kWh,
+      costKES: kWh * band.rateKESPerKWh,
+    };
+  });
+
+  const statement: MonthlyStatementData = {
+    periodStart,
+    periodEnd: now,
+    categories,
+    totalKWh,
+    totalCostKES: totalKWh * band.rateKESPerKWh,
+    tariffBand: band.label,
+    tariffRateKESPerKWh: band.rateKESPerKWh,
+  };
+
+  if (monthlyBudgetKES && monthlyBudgetKES > 0) {
+    statement.monthlyBudgetKES = monthlyBudgetKES;
+    statement.percentOfBudget = (statement.totalCostKES / monthlyBudgetKES) * 100;
+  }
+
+  return statement;
+}
+
+function renderDigestHTML(user: Pick<IUser, "username">, data: WeeklyReportData, statement: MonthlyStatementData): string {
   const dateFmt = (d: Date) => d.toLocaleDateString("en-KE", { month: "short", day: "numeric" });
 
   const categoryRows = data.categories
@@ -115,6 +186,23 @@ function renderDigestHTML(user: Pick<IUser, "username">, data: WeeklyReportData)
          against your KSh ${data.monthlyBudgetKES.toFixed(0)} budget.
        </p>`
     : "";
+
+  const statementRows = statement.categories
+    .map(
+      (c) => `<tr>
+        <td style="padding:6px 0;color:#183B27;">${c.category}</td>
+        <td style="padding:6px 0;text-align:right;color:#183B27;">${c.kWh.toFixed(1)} kWh</td>
+        <td style="padding:6px 0;text-align:right;color:#183B27;">KSh ${c.costKES.toFixed(0)}</td>
+      </tr>`
+    )
+    .join("");
+
+  const statementBudgetLine =
+    statement.monthlyBudgetKES && statement.percentOfBudget !== undefined
+      ? `<div style="color:#4A6858;font-size:13px;margin-top:8px;">
+           ${statement.percentOfBudget.toFixed(0)}% of your KSh ${statement.monthlyBudgetKES.toFixed(0)} monthly budget used so far.
+         </div>`
+      : "";
 
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:520px;margin:0 auto;">
@@ -147,14 +235,40 @@ function renderDigestHTML(user: Pick<IUser, "username">, data: WeeklyReportData)
         }
       </p>
 
+      <hr style="border:none;border-top:1px solid #D9E5DC;margin:24px 0;" />
+
+      <h3 style="color:#0A5C36;margin-bottom:2px;font-size:16px;">Month-to-Date Statement</h3>
+      <p style="color:#4A6858;font-size:13px;margin-top:0;">
+        ${dateFmt(statement.periodStart)} – ${dateFmt(statement.periodEnd)}
+      </p>
+
+      ${
+        statement.categories.length > 0
+          ? `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+               <tr style="border-bottom:1px solid #D9E5DC;">
+                 <td style="padding:6px 0;color:#4A6858;font-size:12px;">CATEGORY</td>
+                 <td style="padding:6px 0;text-align:right;color:#4A6858;font-size:12px;">USAGE</td>
+                 <td style="padding:6px 0;text-align:right;color:#4A6858;font-size:12px;">COST</td>
+               </tr>
+               ${statementRows}
+             </table>`
+          : `<p style="color:#4A6858;font-size:14px;">No telemetry recorded this month yet.</p>`
+      }
+
+      <div style="display:flex;justify-content:space-between;border-top:2px solid #0A5C36;margin-top:8px;padding-top:8px;font-weight:700;color:#0A5C36;">
+        <span>Total (${statement.tariffBand} tariff, KSh ${statement.tariffRateKESPerKWh.toFixed(2)}/kWh)</span>
+        <span>KSh ${statement.totalCostKES.toFixed(0)}</span>
+      </div>
+      ${statementBudgetLine}
+
       <p style="color:#8AA396;font-size:11px;margin-top:24px;">
-        A detailed PDF summary is attached. You can turn off these emails anytime from your Profile page.
+        A detailed PDF summary is attached. You can turn off these emails anytime from your Settings page.
       </p>
     </div>
   `;
 }
 
-function generateDigestPDF(user: Pick<IUser, "username">, data: WeeklyReportData): Promise<Buffer> {
+function generateDigestPDF(user: Pick<IUser, "username">, data: WeeklyReportData, statement: MonthlyStatementData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50 });
     const chunks: Buffer[] = [];
@@ -199,6 +313,61 @@ function generateDigestPDF(user: Pick<IUser, "username">, data: WeeklyReportData
           : "No anomalies flagged this week."
       );
 
+    // ── Month-to-Date Statement ──────────────────────────────────
+    doc.moveDown(1.2);
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(545, doc.y)
+      .strokeColor("#D9E5DC")
+      .stroke();
+    doc.moveDown(0.8);
+
+    doc.fontSize(16).fillColor("#0A5C36").text("Month-to-Date Statement");
+    doc.fontSize(10).fillColor("#4A6858").text(`${dateFmt(statement.periodStart)} - ${dateFmt(statement.periodEnd)}`);
+    doc.moveDown(0.8);
+
+    if (statement.categories.length > 0) {
+      const colX = { category: 50, usage: 320, cost: 430 };
+      doc.fontSize(9).fillColor("#4A6858");
+      doc.text("CATEGORY", colX.category, doc.y, { continued: false });
+      doc.text("USAGE", colX.usage, doc.y - 11, { width: 100, align: "right" });
+      doc.text("COST", colX.cost, doc.y - 11, { width: 100, align: "right" });
+      doc.moveDown(0.4);
+
+      statement.categories.forEach((c) => {
+        const rowY = doc.y;
+        doc.fontSize(11).fillColor("#183B27");
+        doc.text(c.category, colX.category, rowY, { width: 260 });
+        doc.text(`${c.kWh.toFixed(1)} kWh`, colX.usage, rowY, { width: 100, align: "right" });
+        doc.text(`KSh ${c.costKES.toFixed(0)}`, colX.cost, rowY, { width: 100, align: "right" });
+        doc.moveDown(0.5);
+      });
+    } else {
+      doc.fontSize(11).fillColor("#4A6858").text("No telemetry recorded this month yet.", 50, doc.y, { width: 495 });
+    }
+
+    doc.moveDown(0.5);
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(545, doc.y)
+      .strokeColor("#0A5C36")
+      .lineWidth(1.5)
+      .stroke();
+    doc.moveDown(0.4);
+
+    doc
+      .fontSize(12)
+      .fillColor("#0A5C36")
+      .text(`Total (${statement.tariffBand} tariff, KSh ${statement.tariffRateKESPerKWh.toFixed(2)}/kWh): KSh ${statement.totalCostKES.toFixed(0)}`, 50, doc.y, { width: 495 });
+
+    if (statement.monthlyBudgetKES && statement.percentOfBudget !== undefined) {
+      doc.moveDown(0.3);
+      doc
+        .fontSize(10)
+        .fillColor("#4A6858")
+        .text(`${statement.percentOfBudget.toFixed(0)}% of your KSh ${statement.monthlyBudgetKES.toFixed(0)} monthly budget used so far.`, 50, doc.y, { width: 495 });
+    }
+
     doc.end();
   });
 }
@@ -212,8 +381,9 @@ function generateDigestPDF(user: Pick<IUser, "username">, data: WeeklyReportData
  */
 export const sendWeeklyDigest = async (user: IUser): Promise<boolean> => {
   const data = await buildWeeklyReportData(user._id.toString(), user.monthlyBudgetKES);
-  const html = renderDigestHTML(user, data);
-  const pdf = await generateDigestPDF(user, data);
+  const statement = await buildMonthlyStatementData(user._id.toString(), user.monthlyBudgetKES);
+  const html = renderDigestHTML(user, data, statement);
+  const pdf = await generateDigestPDF(user, data, statement);
 
   const sent = await sendMail({
     to: user.email,

@@ -86,7 +86,7 @@ export default function Landing() {
         <div className="position-relative px-4 py-5" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ maxWidth: 560 }}>
             <h1 className="fw-bold mb-3" style={{ fontSize: '2.75rem', lineHeight: 1.1 }}>
-              Know where your power goes.
+              Track your Energy.
             </h1>
             <p className="mb-4" style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.85)' }}>
               SEMP monitors your home's energy usage device by device, flags unusual consumption before it
@@ -141,7 +141,7 @@ export default function Landing() {
           Ready to see where your power goes?
         </h3>
         <Link to="/register" className="btn btn-primary btn-lg">
-          Get started
+          Get started 
         </Link>
       </div>
 
